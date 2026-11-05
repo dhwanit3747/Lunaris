@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router";
 import {
   AboutPage,
+  AccessBoundary,
+  AccessStatusPage,
   AdminPage,
   AuthPage,
   ExplorePage,
@@ -46,20 +48,46 @@ export const router = createBrowserRouter([
   { path: "/login", element: <AuthPage mode="login" /> },
   { path: "/register", element: <AuthPage mode="register" /> },
   { path: "/forgot-password", element: <AuthPage mode="forgot" /> },
-  { path: "/researcher/dashboard", element: <WorkspaceDashboard role="researcher" /> },
+  { path: "/access-status/:state", Component: AccessStatusPage },
+  {
+    path: "/researcher/dashboard",
+    element: (
+      <AccessBoundary role="Researcher">
+        <WorkspaceDashboard role="researcher" />
+      </AccessBoundary>
+    ),
+  },
   ...researcherTools.map((path) => ({
     path: `/researcher/${path}`,
-    element: <ToolPage role="researcher" />,
+    element: (
+      <AccessBoundary role="Researcher">
+        <ToolPage role="researcher" />
+      </AccessBoundary>
+    ),
   })),
-  { path: "/mission/dashboard", element: <WorkspaceDashboard role="mission" /> },
+  {
+    path: "/mission/dashboard",
+    element: (
+      <AccessBoundary role="Scientist / Mission Professional">
+        <WorkspaceDashboard role="mission" />
+      </AccessBoundary>
+    ),
+  },
   ...missionTools.map((path) => ({
     path: `/mission/${path}`,
-    element: <ToolPage role="mission" />,
+    element: (
+      <AccessBoundary role="Scientist / Mission Professional">
+        <ToolPage role="mission" />
+      </AccessBoundary>
+    ),
   })),
-  { path: "/admin/dashboard", Component: AdminPage },
-  { path: "/admin/users", Component: AdminPage },
-  { path: "/admin/approvals", Component: AdminPage },
-  { path: "/admin/roles", Component: AdminPage },
-  { path: "/admin/audit-logs", Component: AdminPage },
+  ...["dashboard", "users", "approvals", "roles", "audit-logs"].map((path) => ({
+    path: `/admin/${path}`,
+    element: (
+      <AccessBoundary role="Administrator">
+        <AdminPage />
+      </AccessBoundary>
+    ),
+  })),
   { path: "*", Component: NotFound },
 ]);

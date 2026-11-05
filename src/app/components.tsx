@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router";
+import { useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import {
   Activity,
   AlertTriangle,
@@ -124,6 +124,7 @@ const navIcons = [
 
 export function AppShell({ role, children }: { role: Role; children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [utility, setUtility] = useState<"search" | "notifications" | null>(null);
   const location = useLocation();
   const roleName = role === "mission" ? "Mission Control" : role[0].toUpperCase() + role.slice(1);
   return (
@@ -177,10 +178,18 @@ export function AppShell({ role, children }: { role: Role; children: React.React
           </div>
           <div>
             <DemoBadge />
-            <button className="icon-btn">
+            <button
+              className="icon-btn"
+              onClick={() => setUtility(utility === "search" ? null : "search")}
+              aria-label="Search workspace"
+            >
               <Search size={17} />
             </button>
-            <button className="icon-btn">
+            <button
+              className="icon-btn"
+              onClick={() => setUtility(utility === "notifications" ? null : "notifications")}
+              aria-label="Open notifications"
+            >
               <Bell size={17} />
             </button>
           </div>
@@ -198,6 +207,35 @@ export function AppShell({ role, children }: { role: Role; children: React.React
           );
         })}
       </nav>
+      {utility && (
+        <div className="utility-popover">
+          <div className="panel-title">
+            <span>{utility === "search" ? "Workspace search" : "Notifications"}</span>
+            <button onClick={() => setUtility(null)} aria-label="Close">
+              <X size={15} />
+            </button>
+          </div>
+          {utility === "search" ? (
+            <label className="utility-search">
+              <Search size={15} />
+              <input autoFocus placeholder="Search sites, scenarios, datasets…" />
+            </label>
+          ) : (
+            <div className="notification-list">
+              <span>
+                <i className="good" />
+                <b>Scenario calculation complete</b>
+                Ares Prime is ready for review.
+              </span>
+              <span>
+                <i />
+                <b>Dataset status updated</b>
+                LOLA reference layer is available.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -468,9 +506,12 @@ export function FormField({ label, children }: { label: string; children: React.
 
 export function MissionPlannerForm() {
   const [calculated, setCalculated] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+  const [toast, setToast] = useState("");
+  const navigate = useNavigate();
   return (
     <div className="planner-grid">
-      <div className="panel form-panel">
+      <div className="panel form-panel" key={formKey}>
         <div className="panel-title">
           <Orbit /> Scenario configuration <DemoBadge />
         </div>
@@ -518,11 +559,24 @@ export function MissionPlannerForm() {
           </FormField>
         </div>
         <div className="form-actions">
-          <button className="button ghost">
+          <button
+            className="button ghost"
+            onClick={() => {
+              setFormKey((key) => key + 1);
+              setCalculated(false);
+              setToast("Scenario form reset");
+            }}
+          >
             <RotateCcw size={15} />
             Reset
           </button>
-          <button className="button ghost">
+          <button
+            className="button ghost"
+            onClick={() => {
+              localStorage.setItem("lunaris-saved-scenario", "Artemis Surface Window A");
+              setToast("Scenario saved locally in demo mode");
+            }}
+          >
             <Save size={15} />
             Save scenario
           </button>
@@ -557,7 +611,9 @@ export function MissionPlannerForm() {
                 Terrain confidence <b>Medium</b>
               </span>
             </div>
-            <button className="button full">Compare scenario</button>
+            <button className="button full" onClick={() => navigate("/mission/compare")}>
+              Compare scenario
+            </button>
           </>
         ) : (
           <div className="empty-result">
@@ -567,6 +623,7 @@ export function MissionPlannerForm() {
           </div>
         )}
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </div>
   );
 }

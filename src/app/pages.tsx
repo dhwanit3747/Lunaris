@@ -155,9 +155,9 @@ export function LandingPage() {
                   <span className="eyebrow">Selected region</span>
                   <h3>Shackleton Rim A</h3>
                 </div>
-                <button className="icon-button">
+                <Link className="icon-button" to="/explore" aria-label="Open selected region">
                   <Target />
-                </button>
+                </Link>
               </div>
               <div className="data-reading solar">
                 <Sun />
@@ -454,6 +454,7 @@ function PublicFooter() {
 
 export function ExplorePage() {
   const [selected, setSelected] = useState(0);
+  const [view, setView] = useState<"globe" | "map">("globe");
   return (
     <AppShell role="public">
       <PageHeader
@@ -471,12 +472,24 @@ export function ExplorePage() {
         <div className="panel viz-panel">
           <div className="panel-toolbar">
             <div>
-              <button className="active">Globe</button>
-              <button>South polar map</button>
+              <button className={view === "globe" ? "active" : ""} onClick={() => setView("globe")}>
+                Globe
+              </button>
+              <button className={view === "map" ? "active" : ""} onClick={() => setView("map")}>
+                South polar map
+              </button>
             </div>
             <DemoBadge />
           </div>
-          <MoonGlobe selected={selected} onSelect={setSelected} />
+          <div className={view === "map" ? "map-view" : ""}>
+            <MoonGlobe selected={selected} onSelect={setSelected} />
+            {view === "map" && (
+              <div className="map-mode-label">
+                <Map size={14} />
+                Polar stereographic demonstration view
+              </div>
+            )}
+          </div>
           <TimeControl />
         </div>
         <SiteDetail index={selected} />
@@ -516,10 +529,12 @@ export function ExplorePage() {
 
 export function SitesPage() {
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"All" | "Candidate" | "Historic">("All");
   const filtered = sites.filter(
     (s) =>
-      s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.region.toLowerCase().includes(query.toLowerCase()),
+      (s.name.toLowerCase().includes(query.toLowerCase()) ||
+        s.region.toLowerCase().includes(query.toLowerCase())) &&
+      (filter === "All" || s.type === filter),
   );
   return (
     <AppShell role="public">
@@ -537,9 +552,15 @@ export function SitesPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </label>
-        <button className="filter active">All sites</button>
-        <button className="filter">Candidate</button>
-        <button className="filter">Historic</button>
+        {(["All", "Candidate", "Historic"] as const).map((option) => (
+          <button
+            key={option}
+            className={`filter ${filter === option ? "active" : ""}`}
+            onClick={() => setFilter(option)}
+          >
+            {option === "All" ? "All sites" : option}
+          </button>
+        ))}
       </div>
       <div className="catalog-grid">
         {filtered.map((site, i) => (
@@ -571,6 +592,22 @@ export function SitesPage() {
           </Link>
         ))}
       </div>
+      {!filtered.length && (
+        <div className="panel empty-state compact-empty">
+          <Search />
+          <h2>No landing sites found</h2>
+          <p>Try another search term or clear the selected site category.</p>
+          <button
+            className="button ghost"
+            onClick={() => {
+              setQuery("");
+              setFilter("All");
+            }}
+          >
+            Clear filters
+          </button>
+        </div>
+      )}
     </AppShell>
   );
 }
@@ -582,6 +619,8 @@ export function SitePage() {
     sites.findIndex((s) => s.id === id),
   );
   const site = sites[index];
+  const [toast, setToast] = useState("");
+  const navigate = useNavigate();
   return (
     <AppShell role="public">
       <PageHeader
@@ -590,11 +629,23 @@ export function SitePage() {
         description={site.note}
         actions={
           <>
-            <button className="button ghost">
+            <button
+              className="button ghost"
+              onClick={() => {
+                localStorage.setItem("lunaris-saved-site", site.id);
+                setToast(`${site.name} saved to your demo workspace`);
+              }}
+            >
               <Save size={15} />
               Save
             </button>
-            <button className="button">
+            <button
+              className="button"
+              onClick={() => {
+                localStorage.setItem("lunaris-compare-site", site.id);
+                navigate("/researcher/compare");
+              }}
+            >
               <Plus size={15} />
               Compare
             </button>
@@ -616,6 +667,7 @@ export function SitePage() {
           <ScienceChart type="earth" title="Simulated Earth elevation" />
         </div>
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
@@ -623,6 +675,8 @@ export function SitePage() {
 export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" }) {
   const isMission = role === "mission";
   const [selected, setSelected] = useState(0);
+  const [layer, setLayer] = useState("Terrain");
+  const [toast, setToast] = useState("");
   return (
     <AppShell role={role}>
       <PageHeader
@@ -635,7 +689,10 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
         }
         actions={
           <>
-            <button className="button ghost">
+            <button
+              className="button ghost"
+              onClick={() => setToast("Demo mission brief generated with simulation disclaimer")}
+            >
               <FileText size={15} />
               Generate brief
             </button>
@@ -681,9 +738,15 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
           <div className="panel-title">
             <span>South polar operations map</span>
             <div>
-              <button className="chip active">Terrain</button>
-              <button className="chip">Shadows</button>
-              <button className="chip">Sites</button>
+              {["Terrain", "Shadows", "Sites"].map((option) => (
+                <button
+                  key={option}
+                  className={`chip ${layer === option ? "active" : ""}`}
+                  onClick={() => setLayer(option)}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
           </div>
           <MoonGlobe selected={selected} onSelect={setSelected} compact />
@@ -691,7 +754,12 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
         <div className="panel scenario-panel">
           <div className="panel-title">
             <span>{isMission ? "Selected mission scenario" : "Selected analysis"}</span>
-            <button>•••</button>
+            <button
+              onClick={() => setToast("Scenario actions: duplicate, archive, and export are ready")}
+              aria-label="Scenario actions"
+            >
+              •••
+            </button>
           </div>
           <span className="eyebrow">Scenario 04</span>
           <h2>Ares Prime</h2>
@@ -736,6 +804,7 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
           <ScienceChart type="earth" />
         </div>
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
@@ -743,6 +812,7 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
 export function ToolPage({ role }: { role: "researcher" | "mission" }) {
   const params = location.pathname.split("/").filter(Boolean);
   const key = params[params.length - 1];
+  const [toast, setToast] = useState("");
   const meta = pageMeta[key] || { title: "Workspace", kicker: "Mission planning intelligence." };
   if (key === "planner")
     return (
@@ -771,11 +841,20 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
         description={meta.kicker}
         actions={
           <>
-            <button className="button ghost">
+            <button
+              className="button ghost"
+              onClick={() => setToast(`${meta.title} demonstration data exported as CSV`)}
+            >
               <Download size={15} />
               Export data
             </button>
-            <button className="button">
+            <button
+              className="button"
+              onClick={() => {
+                localStorage.setItem(`lunaris-analysis-${key}`, new Date().toISOString());
+                setToast(`${meta.title} saved locally`);
+              }}
+            >
               <Save size={15} />
               Save analysis
             </button>
@@ -844,6 +923,7 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
           </div>
         </div>
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
@@ -887,9 +967,18 @@ function ComparisonPage({ role }: { role: "researcher" | "mission" }) {
             </button>
             <button
               className="button"
-              onClick={() =>
-                setList([...list, { ...scenarios[0], name: "New scenario", site: "Nobile Region" }])
-              }
+              disabled={list.length >= 4}
+              title={list.length >= 4 ? "A maximum of four scenarios can be compared" : ""}
+              onClick={() => {
+                if (list.length >= 4) {
+                  setToast("Comparison limit reached: remove a scenario before adding another");
+                  return;
+                }
+                setList([
+                  ...list,
+                  { ...scenarios[0], name: `Scenario ${list.length + 1}`, site: "Nobile Region" },
+                ]);
+              }}
             >
               <Plus size={15} />
               Add scenario
@@ -957,13 +1046,20 @@ function ComparisonPage({ role }: { role: "researcher" | "mission" }) {
 }
 
 function DataCenter({ role }: { role: "researcher" | "mission" }) {
+  const [selectedDataset, setSelectedDataset] = useState<(typeof datasets)[number] | null>(null);
+  const [toast, setToast] = useState("");
   return (
     <AppShell role={role}>
       <PageHeader
         title={role === "mission" ? "Scientific Data Center" : "Dataset Explorer"}
         description="Review source coverage, resolution and integration readiness. No live scientific service is queried in this demo."
         actions={
-          <button className="button ghost">
+          <button
+            className="button ghost"
+            onClick={() =>
+              setToast("Integration guide opened in demo mode; live credentials are not configured")
+            }
+          >
             <Database size={15} />
             Integration guide
           </button>
@@ -996,7 +1092,7 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
                 <dd>Reference only</dd>
               </div>
             </dl>
-            <button className="button ghost full">
+            <button className="button ghost full" onClick={() => setSelectedDataset(d)}>
               View dataset <ExternalLink size={14} />
             </button>
           </div>
@@ -1009,6 +1105,50 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
           indicators and analytical outputs are simulated until live integrations are validated.
         </span>
       </div>
+      {selectedDataset && (
+        <div className="modal-backdrop" onClick={() => setSelectedDataset(null)}>
+          <div className="modal panel" onClick={(event) => event.stopPropagation()}>
+            <div className="panel-title">
+              <span>Dataset reference</span>
+              <button onClick={() => setSelectedDataset(null)}>
+                <X size={15} />
+              </button>
+            </div>
+            <div className="modal-content">
+              <DemoBadge />
+              <h2>{selectedDataset[0]}</h2>
+              <p>{selectedDataset[1]}</p>
+              <div className="result-list">
+                <span>
+                  Coverage <b>{selectedDataset[2]}</b>
+                </span>
+                <span>
+                  Resolution <b>{selectedDataset[3]}</b>
+                </span>
+                <span>
+                  Integration <b>{selectedDataset[4]}</b>
+                </span>
+              </div>
+              <div className="science-note">
+                <AlertTriangle />
+                <span>
+                  <b>Reference only</b>No live data is downloaded by this demonstration.
+                </span>
+              </div>
+              <button
+                className="button full"
+                onClick={() => {
+                  setSelectedDataset(null);
+                  setToast(`${selectedDataset[0]} added to the demo data queue`);
+                }}
+              >
+                Add reference to workspace
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
@@ -1162,6 +1302,11 @@ function TimelinePage() {
 
 function ReportsPage({ role }: { role: "researcher" | "mission" }) {
   const [toast, setToast] = useState("");
+  const [title, setTitle] = useState("Lunar South Pole Site Assessment");
+  const [window, setWindow] = useState("18–21 August 2030");
+  const [notes, setNotes] = useState(
+    "Comparison of simulated power and direct-to-Earth geometry for candidate surface operations.",
+  );
   return (
     <AppShell role={role}>
       <PageHeader
@@ -1177,7 +1322,7 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
       <div className="report-builder">
         <div className="panel report-form">
           <FormField label="Report title">
-            <input defaultValue="Lunar South Pole Site Assessment" />
+            <input value={title} onChange={(event) => setTitle(event.target.value)} />
           </FormField>
           <FormField label="Selected sites">
             <select>
@@ -1185,10 +1330,10 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
             </select>
           </FormField>
           <FormField label="Mission window">
-            <input defaultValue="18–21 August 2030" />
+            <input value={window} onChange={(event) => setWindow(event.target.value)} />
           </FormField>
           <FormField label="Research notes">
-            <textarea defaultValue="Comparison of simulated power and direct-to-Earth geometry for candidate surface operations." />
+            <textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
           </FormField>
           <label className="check-row">
             <input type="checkbox" defaultChecked />
@@ -1202,18 +1347,11 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
         <div className="report-preview panel">
           <div className="report-paper">
             <span>LUNARIS · MISSION INTELLIGENCE</span>
-            <h2>
-              Lunar South Pole
-              <br />
-              Site Assessment
-            </h2>
-            <p>Demonstration report · 18 August 2030</p>
+            <h2>{title || "Untitled mission report"}</h2>
+            <p>Demonstration report · {window}</p>
             <div className="report-hero" />
             <h3>Executive summary</h3>
-            <p>
-              Shackleton Rim and Malapert Massif present distinct power and communication
-              trade-offs. All values in this report are simulated.
-            </p>
+            <p>{notes || "Add research notes to complete this demonstration report."}</p>
             <div className="report-chart">
               <ScienceChart type="solar" height={150} />
             </div>
@@ -1226,13 +1364,14 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
 }
 
 function SavedScenarios() {
+  const navigate = useNavigate();
   return (
     <AppShell role="researcher">
       <PageHeader
         title="Saved Scenarios"
         description="Return to demonstration analyses and continue your work."
         actions={
-          <button className="button">
+          <button className="button" onClick={() => navigate("/researcher/explorer")}>
             <Plus size={15} />
             New analysis
           </button>
@@ -1247,7 +1386,7 @@ function SavedScenarios() {
             s.date,
             "2 hours ago",
             <StatusPill status={s.status} />,
-            <button className="table-action">
+            <button className="table-action" onClick={() => navigate("/researcher/analytics")}>
               Open <ArrowRight size={13} />
             </button>,
           ])}
@@ -1258,6 +1397,15 @@ function SavedScenarios() {
 }
 
 function SettingsPage({ role }: { role: "researcher" | "mission" }) {
+  const [tab, setTab] = useState("General");
+  const [toast, setToast] = useState("");
+  const tabs = [
+    "General",
+    "Display & units",
+    "Notifications",
+    "Data attribution",
+    "Access & security",
+  ];
   return (
     <AppShell role={role}>
       <PageHeader
@@ -1270,11 +1418,15 @@ function SettingsPage({ role }: { role: "researcher" | "mission" }) {
       />
       <div className="settings-grid">
         <div className="panel settings-nav">
-          <button className="active">General</button>
-          <button>Display & units</button>
-          <button>Notifications</button>
-          <button>Data attribution</button>
-          <button>Access & security</button>
+          {tabs.map((option) => (
+            <button
+              key={option}
+              className={tab === option ? "active" : ""}
+              onClick={() => setTab(option)}
+            >
+              {option}
+            </button>
+          ))}
         </div>
         <div className="panel form-panel">
           <div className="profile-head">
@@ -1286,26 +1438,107 @@ function SettingsPage({ role }: { role: "researcher" | "mission" }) {
               />
             </div>
           </div>
-          <div className="form-grid">
-            <FormField label="Full name">
-              <input defaultValue="Alex Rivera" />
-            </FormField>
-            <FormField label="Institution">
-              <input defaultValue="Selene Research Institute" />
-            </FormField>
-            <FormField label="Work email">
-              <input defaultValue="alex@selene.edu" />
-            </FormField>
-            <FormField label="Default units">
-              <select>
-                <option>Metric · Degrees</option>
-                <option>Metric · Radians</option>
-              </select>
-            </FormField>
-          </div>
-          <button className="button">Save changes</button>
+          {tab === "General" && (
+            <div className="form-grid">
+              <FormField label="Full name">
+                <input defaultValue="Alex Rivera" />
+              </FormField>
+              <FormField label="Institution">
+                <input defaultValue="Selene Research Institute" />
+              </FormField>
+              <FormField label="Work email">
+                <input defaultValue="alex@selene.edu" />
+              </FormField>
+              <FormField label="Default workspace">
+                <select>
+                  <option>{role === "mission" ? "Mission Overview" : "Research Dashboard"}</option>
+                  <option>Site Explorer</option>
+                </select>
+              </FormField>
+            </div>
+          )}
+          {tab === "Display & units" && (
+            <div className="form-grid">
+              <FormField label="Angular units">
+                <select>
+                  <option>Degrees</option>
+                  <option>Radians</option>
+                </select>
+              </FormField>
+              <FormField label="Time standard">
+                <select>
+                  <option>UTC</option>
+                  <option>Local mission elapsed time</option>
+                </select>
+              </FormField>
+              <FormField label="Coordinate precision">
+                <select>
+                  <option>4 decimal places</option>
+                  <option>6 decimal places</option>
+                </select>
+              </FormField>
+            </div>
+          )}
+          {tab === "Notifications" && (
+            <div className="setting-options">
+              {[
+                "Scenario calculation completed",
+                "Dataset integration status",
+                "Report export ready",
+              ].map((label) => (
+                <label key={label}>
+                  <span>
+                    <b>{label}</b>Email and in-app notification
+                  </span>
+                  <input type="checkbox" defaultChecked />
+                </label>
+              ))}
+            </div>
+          )}
+          {tab === "Data attribution" && (
+            <div className="settings-copy">
+              <ShieldCheck />
+              <h3>Attribution is always preserved</h3>
+              <p>
+                Reports include referenced source names, simulation status, and the independent
+                project disclaimer by default.
+              </p>
+            </div>
+          )}
+          {tab === "Access & security" && (
+            <div className="setting-options">
+              <label>
+                <span>
+                  <b>Account role</b>
+                  {role === "mission" ? "Scientist / Mission Professional" : "Researcher"}
+                </span>
+                <StatusPill status="Approved" />
+              </label>
+              <label>
+                <span>
+                  <b>Two-step verification</b>Recommended for restricted workspaces
+                </span>
+                <button
+                  className="button ghost"
+                  onClick={() => setToast("Verification setup opened")}
+                >
+                  Configure
+                </button>
+              </label>
+            </div>
+          )}
+          <button
+            className="button"
+            onClick={() => {
+              localStorage.setItem("lunaris-settings-tab", tab);
+              setToast(`${tab} preferences saved locally`);
+            }}
+          >
+            Save changes
+          </button>
         </div>
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
@@ -1421,6 +1654,12 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
   const nav = useNavigate();
   const [show, setShow] = useState(false);
   const [role, setRole] = useState("Public Explorer");
+  const [name, setName] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
   const title =
     mode === "login"
       ? "Welcome back"
@@ -1462,10 +1701,18 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           {mode === "register" && (
             <>
               <FormField label="Full name">
-                <input placeholder="Your full name" />
+                <input
+                  placeholder="Your full name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                />
               </FormField>
               <FormField label="Organization / institution">
-                <input placeholder="Organization name" />
+                <input
+                  placeholder="Organization name"
+                  value={organization}
+                  onChange={(event) => setOrganization(event.target.value)}
+                />
               </FormField>
               <FormField label="Intended user category">
                 <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -1479,12 +1726,22 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           <FormField
             label={mode === "register" ? "Institutional or personal email" : "Email address"}
           >
-            <input type="email" placeholder="name@organization.edu" />
+            <input
+              type="email"
+              placeholder="name@organization.edu"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
           </FormField>
           {mode !== "forgot" && (
             <FormField label="Password">
               <div className="password-field">
-                <input type={show ? "text" : "password"} placeholder="••••••••••" />
+                <input
+                  type={show ? "text" : "password"}
+                  placeholder="••••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
                 <button onClick={() => setShow(!show)}>
                   <Eye />
                 </button>
@@ -1493,7 +1750,22 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           )}
           {mode === "register" && (
             <FormField label="Confirm password">
-              <input type="password" placeholder="••••••••••" />
+              <input
+                type="password"
+                placeholder="••••••••••"
+                value={confirm}
+                onChange={(event) => setConfirm(event.target.value)}
+              />
+            </FormField>
+          )}
+          {mode === "login" && (
+            <FormField label="Demo workspace">
+              <select value={role} onChange={(event) => setRole(event.target.value)}>
+                <option>Public Explorer</option>
+                <option>Researcher</option>
+                <option>Scientist / Mission Professional</option>
+                <option>Administrator</option>
+              </select>
             </FormField>
           )}
           {mode === "login" && (
@@ -1516,9 +1788,56 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
               </span>
             </div>
           )}
+          {error && (
+            <div className="form-error">
+              <AlertTriangle />
+              {error}
+            </div>
+          )}
           <button
             className="button full"
-            onClick={() => nav(mode === "login" ? "/mission/dashboard" : "/login")}
+            onClick={() => {
+              setError("");
+              if (!email.includes("@")) {
+                setError("Enter a valid email address to continue.");
+                return;
+              }
+              if (mode !== "forgot" && password.length < 6) {
+                setError("Use at least six characters for this demonstration.");
+                return;
+              }
+              if (mode === "register" && (!name || !organization)) {
+                setError("Add your name and organization before submitting.");
+                return;
+              }
+              if (mode === "register" && password !== confirm) {
+                setError("Passwords do not match.");
+                return;
+              }
+              if (mode === "forgot") {
+                nav("/access-status/email-verification");
+                return;
+              }
+              if (mode === "register") {
+                localStorage.setItem("lunaris-requested-role", role);
+                nav(
+                  role === "Public Explorer"
+                    ? "/access-status/access-granted"
+                    : role === "Researcher"
+                      ? "/access-status/application-submitted"
+                      : "/access-status/pending-approval",
+                );
+                return;
+              }
+              const destinations: Record<string, string> = {
+                "Public Explorer": "/explore",
+                Researcher: "/researcher/dashboard",
+                "Scientist / Mission Professional": "/mission/dashboard",
+                Administrator: "/admin/dashboard",
+              };
+              localStorage.setItem("lunaris-demo-role", role);
+              nav(destinations[role]);
+            }}
           >
             {mode === "login"
               ? "Sign in"
@@ -1528,7 +1847,10 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
             <ArrowRight />
           </button>
           {mode === "login" && (
-            <button className="button ghost full">
+            <button
+              className="button ghost full"
+              onClick={() => setError("Google sign-in is unavailable in this local demonstration.")}
+            >
               <Globe2 />
               Continue with Google <small>Placeholder</small>
             </button>
@@ -1550,15 +1872,154 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
   );
 }
 
+export function AccessStatusPage() {
+  const { state = "pending-approval" } = useParams();
+  const content: Record<
+    string,
+    { icon: React.ElementType; eyebrow: string; title: string; body: string; status: string }
+  > = {
+    "email-verification": {
+      icon: Mail,
+      eyebrow: "Verification required",
+      title: "Check your inbox",
+      body: "A demonstration verification message has been prepared. No real email is sent by this frontend.",
+      status: "Email verification",
+    },
+    "application-submitted": {
+      icon: FileText,
+      eyebrow: "Application submitted",
+      title: "Your research access request is in review",
+      body: "Institutional context must be reviewed by an administrator before researcher permissions are granted.",
+      status: "Pending review",
+    },
+    "pending-approval": {
+      icon: Clock3,
+      eyebrow: "Administrator approval",
+      title: "Mission access is restricted for now",
+      body: "Scientist permissions require professional details and explicit administrator approval.",
+      status: "Pending approval",
+    },
+    "access-granted": {
+      icon: UserCheck,
+      eyebrow: "Access granted",
+      title: "Your explorer workspace is ready",
+      body: "You can begin exploring simulated lunar environments and public educational content.",
+      status: "Active",
+    },
+    "access-denied": {
+      icon: X,
+      eyebrow: "Access decision",
+      title: "This request was not approved",
+      body: "Contact an administrator with updated institution or mission affiliation details.",
+      status: "Access denied",
+    },
+    suspended: {
+      icon: LockKeyhole,
+      eyebrow: "Account suspended",
+      title: "Workspace access is temporarily unavailable",
+      body: "An administrator must review this account before access can be restored.",
+      status: "Suspended",
+    },
+  };
+  const item = content[state] || content["pending-approval"];
+  const Icon = item.icon;
+  return (
+    <div className="status-page">
+      <Logo />
+      <div className="status-card panel">
+        <div className="status-orbit">
+          <Icon />
+        </div>
+        <span className="eyebrow">{item.eyebrow}</span>
+        <h1>{item.title}</h1>
+        <p>{item.body}</p>
+        <StatusPill status={item.status} />
+        <div className="status-actions">
+          <Link className="button ghost" to="/login">
+            Return to sign in
+          </Link>
+          {state === "access-granted" && (
+            <Link className="button" to="/explore">
+              Open explorer <ArrowRight size={14} />
+            </Link>
+          )}
+        </div>
+        <small>SIMULATED ACCESS FLOW · NO ACCOUNT OR EMAIL WAS CREATED</small>
+      </div>
+    </div>
+  );
+}
+
+export function AccessBoundary({
+  role,
+  children,
+}: {
+  role: "Researcher" | "Scientist / Mission Professional" | "Administrator";
+  children: React.ReactNode;
+}) {
+  const [demoAccess, setDemoAccess] = useState(
+    () => localStorage.getItem("lunaris-demo-role") === role,
+  );
+  if (demoAccess) return <>{children}</>;
+  const label =
+    role === "Scientist / Mission Professional"
+      ? "Mission Control"
+      : role === "Administrator"
+        ? "Administration"
+        : "Researcher Workspace";
+  return (
+    <div className="status-page restricted-page">
+      <Logo />
+      <div className="status-card panel">
+        <div className="status-orbit">
+          <LockKeyhole />
+        </div>
+        <span className="eyebrow">Role-protected workspace</span>
+        <h1>{label} requires approved access</h1>
+        <p>
+          In production, this route requires a verified account with the matching role. You can
+          enter a clearly labeled local demonstration session without creating an account.
+        </p>
+        <StatusPill status="Access restricted" />
+        <div className="status-actions">
+          <Link className="button ghost" to="/login">
+            Sign in with a role
+          </Link>
+          <button
+            className="button"
+            onClick={() => {
+              localStorage.setItem("lunaris-demo-role", role);
+              setDemoAccess(true);
+            }}
+          >
+            Enter demo workspace <ArrowRight size={14} />
+          </button>
+        </div>
+        <small>FRONTEND ROLE AUTHORIZATION · DEMONSTRATION SESSION ONLY</small>
+      </div>
+    </div>
+  );
+}
+
 export function AdminPage() {
   const key = location.pathname.split("/").pop() || "dashboard";
   const [toast, setToast] = useState("");
-  const users = [
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [users, setUsers] = useState([
     ["Maya Chen", "maya@luna.edu", "Lunar Research Lab", "Researcher", "Pending"],
     ["James Okafor", "j.okafor@orbital.space", "Orbital Systems", "Scientist", "Pending"],
     ["Priya Nair", "priya@astro.ac.in", "National Astro Institute", "Researcher", "Approved"],
     ["Noah Williams", "noah@example.com", "—", "Public", "Active"],
-  ];
+  ]);
+  const handleUserAction = (message: string, email?: string, status?: string) => {
+    if (email && status) {
+      setUsers((current) =>
+        current.map((user) => (user[1] === email ? [...user.slice(0, 4), status] : user)),
+      );
+    }
+    setToast(message);
+  };
   if (key === "dashboard")
     return (
       <AppShell role="admin">
@@ -1599,7 +2060,7 @@ export function AdminPage() {
               View all <ArrowRight size={13} />
             </Link>
           </div>
-          <AdminTable users={users} onAction={setToast} />
+          <AdminTable users={users} onAction={handleUserAction} />
         </div>
         {toast && <Toast message={toast} onClose={() => setToast("")} />}
       </AppShell>
@@ -1629,10 +2090,16 @@ export function AdminPage() {
                   {p}
                 </label>
               ))}
-              <button className="button ghost full">Edit permissions</button>
+              <button
+                className="button ghost full"
+                onClick={() => setToast(`${r} permissions saved for this demo session`)}
+              >
+                Save permissions
+              </button>
             </div>
           ))}
         </div>
+        {toast && <Toast message={toast} onClose={() => setToast("")} />}
       </AppShell>
     );
   if (key === "audit-logs")
@@ -1669,20 +2136,43 @@ export function AdminPage() {
       <div className="filter-row">
         <label>
           <Search />
-          <input placeholder="Search name, email or institution" />
+          <input
+            placeholder="Search name, email or institution"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
         </label>
-        <button className="filter active">All requests</button>
-        <button className="filter">Pending</button>
-        <button className="filter">Approved</button>
+        {["All", "Pending", "Approved"].map((option) => (
+          <button
+            key={option}
+            className={`filter ${statusFilter === option ? "active" : ""}`}
+            onClick={() => setStatusFilter(option)}
+          >
+            {option === "All" ? "All requests" : option}
+          </button>
+        ))}
       </div>
       <div className="panel">
-        <AdminTable users={users} onAction={setToast} />
+        <AdminTable
+          users={users.filter(
+            (user) =>
+              user.some((value) => value.toLowerCase().includes(query.toLowerCase())) &&
+              (statusFilter === "All" || user[4] === statusFilter),
+          )}
+          onAction={handleUserAction}
+        />
       </div>
       {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
-function AdminTable({ users, onAction }: { users: string[][]; onAction: (x: string) => void }) {
+function AdminTable({
+  users,
+  onAction,
+}: {
+  users: string[][];
+  onAction: (message: string, email?: string, status?: string) => void;
+}) {
   return (
     <DataTable
       headers={["User", "Email", "Institution", "Requested role", "Status", "Actions"]}
@@ -1693,13 +2183,13 @@ function AdminTable({ users, onAction }: { users: string[][]; onAction: (x: stri
         u[3],
         <StatusPill status={u[4]} />,
         <div className="table-buttons">
-          <button onClick={() => onAction(`${u[0]} approved`)}>
+          <button onClick={() => onAction(`${u[0]} approved`, u[1], "Approved")}>
             <Check />
           </button>
-          <button onClick={() => onAction(`${u[0]} access declined`)}>
+          <button onClick={() => onAction(`${u[0]} access declined`, u[1], "Denied")}>
             <X />
           </button>
-          <button>•••</button>
+          <button onClick={() => onAction(`${u[0]} account details opened`)}>•••</button>
         </div>,
       ])}
     />
