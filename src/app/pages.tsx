@@ -57,6 +57,7 @@ import {
   ScienceChart,
   SiteDetail,
   StatusPill,
+  ThemeToggle,
   TimeControl,
   Toast,
 } from "./components";
@@ -1666,8 +1667,15 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
       : mode === "register"
         ? "Request access"
         : "Reset your password";
+  const enterDemo = (demoRole: string, destination: string) => {
+    localStorage.setItem("lunaris-demo-role", demoRole);
+    nav(destination);
+  };
   return (
     <div className="auth-page">
+      <div className="auth-theme">
+        <ThemeToggle />
+      </div>
       <div
         className="auth-visual"
         style={{
@@ -1681,6 +1689,50 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           <p>
             Explore, compare and communicate the conditions that shape lunar surface operations.
           </p>
+          {mode === "login" && (
+            <>
+              <div className="demo-access-box">
+                <div>
+                  <DemoBadge />
+                  <b>Test without an account</b>
+                  <small>No email, password, or approval required.</small>
+                </div>
+                <div className="demo-role-grid">
+                  <button onClick={() => enterDemo("Public Explorer", "/explore")}>
+                    <Globe2 />
+                    <span>
+                      Public<small>Explorer</small>
+                    </span>
+                  </button>
+                  <button onClick={() => enterDemo("Researcher", "/researcher/dashboard")}>
+                    <BookOpen />
+                    <span>
+                      Researcher<small>Workspace</small>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() =>
+                      enterDemo("Scientist / Mission Professional", "/mission/dashboard")
+                    }
+                  >
+                    <Telescope />
+                    <span>
+                      Scientist<small>Mission control</small>
+                    </span>
+                  </button>
+                  <button onClick={() => enterDemo("Administrator", "/admin/dashboard")}>
+                    <ShieldCheck />
+                    <span>
+                      Admin<small>Access ops</small>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <div className="auth-divider">
+                <span>or sign in with demo credentials</span>
+              </div>
+            </>
+          )}
         </div>
         <small>Independent demonstration · Not an official NASA product</small>
       </div>
@@ -1925,6 +1977,9 @@ export function AccessStatusPage() {
   const Icon = item.icon;
   return (
     <div className="status-page">
+      <div className="auth-theme">
+        <ThemeToggle />
+      </div>
       <Logo />
       <div className="status-card panel">
         <div className="status-orbit">
@@ -1969,6 +2024,9 @@ export function AccessBoundary({
         : "Researcher Workspace";
   return (
     <div className="status-page restricted-page">
+      <div className="auth-theme">
+        <ThemeToggle />
+      </div>
       <Logo />
       <div className="status-card panel">
         <div className="status-orbit">

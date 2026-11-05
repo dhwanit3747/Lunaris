@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import {
   Activity,
@@ -76,6 +76,25 @@ export function DemoBadge() {
   );
 }
 
+export function ThemeToggle() {
+  const [light, setLight] = useState(() => localStorage.getItem("lunaris-theme") === "light");
+  useEffect(() => {
+    document.documentElement.classList.toggle("light-theme", light);
+    localStorage.setItem("lunaris-theme", light ? "light" : "dark");
+  }, [light]);
+  return (
+    <button
+      className="theme-toggle"
+      onClick={() => setLight(!light)}
+      aria-label={`Switch to ${light ? "dark" : "light"} mode`}
+      title={`Switch to ${light ? "dark" : "light"} mode`}
+    >
+      {light ? <Moon size={15} /> : <Sun size={15} />}
+      <span>{light ? "Dark" : "Light"}</span>
+    </button>
+  );
+}
+
 export function PublicNav() {
   const [open, setOpen] = useState(false);
   return (
@@ -89,6 +108,7 @@ export function PublicNav() {
         <NavLink to="/about">About</NavLink>
       </nav>
       <div className="nav-actions">
+        <ThemeToggle />
         <Link className="text-link hide-mobile" to="/login">
           Sign in
         </Link>
@@ -178,6 +198,7 @@ export function AppShell({ role, children }: { role: Role; children: React.React
           </div>
           <div>
             <DemoBadge />
+            <ThemeToggle />
             <button
               className="icon-btn"
               onClick={() => setUtility(utility === "search" ? null : "search")}

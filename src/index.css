@@ -3012,6 +3012,367 @@ tbody tr:hover {
   }
 }
 
+/* Appearance controls and credential-free demo access */
+.theme-toggle {
+  min-height: 31px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #344359;
+  background: #101925cc;
+  color: #aebdca;
+  padding: 0 9px;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.theme-toggle:hover {
+  border-color: #667b91;
+  color: white;
+}
+.auth-theme {
+  position: fixed;
+  z-index: 100;
+  right: 22px;
+  top: 20px;
+}
+.demo-access-box {
+  border: 1px solid #33445a;
+  background: #0d1824;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+.demo-access-box > div:first-child {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 10px;
+}
+.demo-access-box > div:first-child .demo-badge {
+  grid-row: 1 / 3;
+}
+.demo-access-box b {
+  font: 500 11px "Space Grotesk";
+  color: #d7e3ea;
+}
+.demo-access-box small {
+  color: #718195;
+  font-size: 8px;
+}
+.demo-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 13px;
+}
+.demo-role-grid button {
+  min-height: 54px;
+  border: 1px solid #2d3d52;
+  background: #111d2a;
+  color: #aebcc9;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  cursor: pointer;
+}
+.demo-role-grid button:hover {
+  border-color: var(--cyan);
+  background: #152533;
+}
+.demo-role-grid svg {
+  width: 16px;
+  color: var(--cyan);
+}
+.demo-role-grid span {
+  display: flex;
+  flex-direction: column;
+  font-size: 9px;
+}
+.demo-role-grid span small {
+  margin-top: 3px;
+  font-size: 7px;
+  color: #6c7c90;
+}
+.auth-divider {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #5f6f83;
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.auth-divider:before,
+.auth-divider:after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: #273548;
+}
+
+/* Light mode keeps the cinematic hero dark while adapting product surfaces. */
+.light-theme {
+  color-scheme: light;
+  --ink: #edf2f5;
+  --ink-2: #f7f9fb;
+  --surface: #ffffff;
+  --surface-2: #edf3f7;
+  --line: #ccd7df;
+  --line-soft: #dbe4ea;
+  --text: #14202c;
+  --muted: #607184;
+  --cyan: #007f99;
+  --blue: #176fa8;
+  --gold: #a56d0a;
+  --green: #247b54;
+  --red: #a83f48;
+}
+.light-theme body {
+  background: #edf2f5;
+  color: #14202c;
+}
+.light-theme .app-shell,
+.light-theme .app-main,
+.light-theme .light-public,
+.light-theme .learning-grid,
+.light-theme .about-content {
+  background: #edf2f5;
+}
+.light-theme .sidebar,
+.light-theme .app-topbar,
+.light-theme .panel,
+.light-theme .metric-card,
+.light-theme .catalog-card,
+.light-theme .source-card,
+.light-theme .comparison-card,
+.light-theme .role-card,
+.light-theme .settings-nav,
+.light-theme .form-panel,
+.light-theme .result-panel {
+  background: #f9fbfc;
+  border-color: #cbd7df;
+  color: #14202c;
+}
+.light-theme .sidebar,
+.light-theme .side-head,
+.light-theme .side-bottom,
+.light-theme .app-topbar {
+  border-color: #c9d5dd;
+}
+.light-theme .sidebar nav a {
+  color: #617285;
+}
+.light-theme .sidebar nav a:hover {
+  background: #e8f0f4;
+  color: #14202c;
+}
+.light-theme .sidebar nav a.active {
+  background: #dcebf0;
+  color: #12232e;
+}
+.light-theme .panel-title,
+.light-theme .coordinate-row,
+.light-theme .conditions > div,
+.light-theme .result-list span,
+.light-theme td,
+.light-theme .settings-nav button,
+.light-theme .setting-options > label {
+  border-color: #d2dde4;
+}
+.light-theme .panel-title,
+.light-theme .metric-card strong,
+.light-theme .site-detail h3,
+.light-theme .scenario-panel h2,
+.light-theme .comparison-card h3,
+.light-theme .source-card h3,
+.light-theme .rank-card h3,
+.light-theme .role-card h3 {
+  color: #172633;
+}
+.light-theme .metric-card span,
+.light-theme .metric-card small,
+.light-theme .page-header p,
+.light-theme .site-detail > p,
+.light-theme .conditions span,
+.light-theme .scenario-panel > p,
+.light-theme .source-card > p,
+.light-theme .rank-card p {
+  color: #607184;
+}
+.light-theme .conditions strong,
+.light-theme .result-list b,
+.light-theme .coordinate-row b,
+.light-theme td {
+  color: #263847;
+}
+.light-theme th {
+  background: #e7eef2;
+  color: #526579;
+}
+.light-theme tbody tr:hover {
+  background: #edf4f7;
+}
+.light-theme .form-field input,
+.light-theme .form-field select,
+.light-theme .form-field textarea,
+.light-theme .utility-search {
+  background: #fff;
+  border-color: #c7d4dc;
+  color: #1d2d3a;
+}
+.light-theme .button.ghost {
+  color: #273947;
+  background: #edf3f6;
+  border-color: #b9c9d3;
+}
+.light-theme .button.ghost:hover {
+  background: white;
+  border-color: #7c95a5;
+}
+.light-theme .app-topbar {
+  background: #f6f9fbef;
+  color: #607184;
+}
+.light-theme .mobile-bottom {
+  background: #f7fafbf5;
+  border-color: #bdcbd5;
+}
+.light-theme .chart-wrap {
+  color: #263847;
+}
+.light-theme .moon-viz,
+.light-theme .catalog-map,
+.light-theme .report-chart {
+  color: #eef5fa;
+}
+.light-theme .public-title {
+  background: radial-gradient(circle at 80% 20%, #cde4ed, #edf2f5 48%);
+}
+.light-theme .public-title p,
+.light-theme .about-content p,
+.light-theme .learning-grid p {
+  color: #5c6f80;
+}
+.light-theme .learning-grid article {
+  background: #f8fafb;
+  color: #172633;
+}
+.light-theme .learning-grid {
+  gap: 1px;
+  background: #c6d3dc;
+}
+.light-theme .education-strip,
+.light-theme .challenge,
+.light-theme .process,
+.light-theme .access,
+.light-theme .sites-section,
+.light-theme .intelligence {
+  background: #e8eef2;
+  color: #172633;
+}
+.light-theme .insight-card,
+.light-theme .site-card,
+.light-theme .access-cards article,
+.light-theme .preview-shell {
+  background: #f8fafb;
+  color: #172633;
+}
+.light-theme .insight-card:hover {
+  background: white;
+}
+.light-theme .section-intro > p,
+.light-theme .access-intro p,
+.light-theme .insight-card p,
+.light-theme .site-copy p,
+.light-theme .step p,
+.light-theme .access-cards p {
+  color: #5f7182;
+}
+.light-theme footer {
+  background: #dfe7ec;
+  color: #172633;
+}
+.light-theme .footer-links p,
+.light-theme .footer-links a,
+.light-theme .footer-bottom {
+  color: #536678;
+}
+.light-theme .auth-form {
+  background: #f3f6f8;
+}
+.light-theme .auth-box h2 {
+  color: #152532;
+}
+.light-theme .auth-box > p {
+  color: #657789;
+}
+.light-theme .demo-access-box {
+  background: #fff;
+  border-color: #c4d2da;
+}
+.light-theme .demo-access-box b {
+  color: #172633;
+}
+.light-theme .demo-role-grid button {
+  background: #edf3f6;
+  border-color: #c4d2dc;
+  color: #293b49;
+}
+.light-theme .demo-role-grid button:hover {
+  background: #fff;
+}
+.light-theme .status-page {
+  background: radial-gradient(circle at 50% 35%, #d2e5ed, #edf2f5 58%);
+}
+.light-theme .status-card {
+  background: #f9fbfc;
+}
+.light-theme .status-card h1 {
+  color: #172633;
+}
+.light-theme .utility-popover,
+.light-theme .modal {
+  background: #f9fbfc;
+  border-color: #bccbd5;
+  color: #172633;
+}
+.light-theme .notification-list b {
+  color: #253745;
+}
+.light-theme .theme-toggle {
+  background: #f5f8fa;
+  border-color: #b8c8d2;
+  color: #314656;
+}
+.light-theme .hero,
+.light-theme .hero .public-nav {
+  color: #eef5fa;
+}
+.light-theme .hero .theme-toggle,
+.light-theme .public-nav .theme-toggle {
+  background: #101925cc;
+  border-color: #344359;
+  color: #d7e2e9;
+}
+
+@media (max-width: 780px) {
+  .theme-toggle span {
+    display: none;
+  }
+  .demo-role-grid {
+    grid-template-columns: 1fr;
+  }
+  .auth-theme {
+    top: 16px;
+    right: 16px;
+  }
+}
+
 @media (max-width: 480px) {
   .metric-grid,
   .metric-grid.five {
