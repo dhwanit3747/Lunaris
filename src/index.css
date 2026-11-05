@@ -4071,3 +4071,358 @@ footer,
     width: 100%;
   }
 }
+
+/* Final contrast layer: intentionally last so legacy component colors cannot win. */
+:root {
+  --ui-text: #f2f8fc;
+  --ui-heading: #ffffff;
+  --ui-copy: #c3d1dc;
+  --ui-muted: #93a7b8;
+  --ui-faint: #758a9d;
+  --ui-link: #8feaff;
+}
+body {
+  color: var(--ui-text);
+}
+.page-header h1,
+.panel-title,
+.panel h2,
+.panel h3,
+.metric-card strong,
+.site-card h3,
+.catalog-card h3,
+.insight-card h3,
+.access-cards h3,
+.learning-grid h2,
+.section-intro h2,
+.access-intro h2,
+.education-strip h2,
+.about-content h2,
+.settings-copy h3,
+.status-card h1,
+.auth-box h2 {
+  color: var(--ui-heading);
+}
+.page-header p,
+.panel p,
+.site-copy p,
+.catalog-card p,
+.insight-card p,
+.access-cards p,
+.section-intro > p,
+.access-intro p,
+.about-content p,
+.learning-grid p,
+.conditions span,
+.metric-card span,
+.rank-card p,
+.source-card > p,
+.status-card > p,
+.auth-box > p {
+  color: var(--ui-copy);
+}
+.metric-card small,
+.coordinate-row span,
+.site-coords,
+.source-card dt,
+.chart-actions,
+.side-bottom small,
+.app-topbar,
+.footer-bottom,
+.form-field > span,
+.comparison-card > p,
+.preview-role-grid span small,
+.notification-list > span,
+.settings-copy p,
+.rank-card > b {
+  color: var(--ui-muted);
+}
+.nav-links a,
+.sidebar nav a,
+.footer-links a,
+.concepts a,
+.line-arrow,
+.table-action {
+  color: var(--ui-copy);
+}
+.nav-links a:hover,
+.nav-links a.active,
+.sidebar nav a:hover,
+.sidebar nav a.active,
+.footer-links a:hover,
+.table-action:hover {
+  color: var(--ui-heading);
+}
+.eyebrow,
+.text-link,
+.panel-title a {
+  color: var(--ui-link);
+}
+.form-field input,
+.form-field select,
+.form-field textarea,
+.filter-row input,
+.utility-search input {
+  color: var(--ui-text);
+}
+.form-field input::placeholder,
+.form-field textarea::placeholder,
+.filter-row input::placeholder,
+.utility-search input::placeholder {
+  color: var(--ui-faint);
+  opacity: 1;
+}
+select option {
+  color: #eef7fb;
+  background: #102033;
+}
+.button.ghost {
+  color: #e3f1f7;
+}
+.button:hover {
+  background: #dffaff;
+  color: #06202a;
+}
+.button.ghost:hover {
+  background: rgba(177, 231, 250, 0.17);
+  color: #ffffff;
+}
+.theme-toggle {
+  color: #d7e7ef;
+}
+.filter,
+.chip,
+.panel-toolbar button,
+.settings-nav button {
+  color: var(--ui-muted);
+}
+.status-pill {
+  color: #c7d7e1;
+}
+.model-badge {
+  background: rgba(54, 171, 205, 0.13);
+  border-color: rgba(112, 227, 255, 0.35);
+  color: #a8efff;
+}
+.result-list span {
+  color: var(--ui-muted);
+}
+.result-list b,
+.coordinate-row b,
+.conditions strong,
+td {
+  color: #dce8ef;
+}
+th {
+  color: #9fb1c0;
+}
+.recharts-text,
+.recharts-cartesian-axis-tick-value {
+  fill: #91a6b8;
+}
+.recharts-tooltip-wrapper {
+  color: #eaf7fb;
+}
+.preview-data,
+.preview-data h3,
+.moon-viz,
+.report-chart {
+  color: #eef8fc;
+}
+
+.light-theme {
+  --ui-text: #142b38;
+  --ui-heading: #071e2b;
+  --ui-copy: #365363;
+  --ui-muted: #526f80;
+  --ui-faint: #6d8593;
+  --ui-link: #006f8b;
+}
+.light-theme body {
+  color: var(--ui-text);
+}
+.light-theme .page-header h1,
+.light-theme .panel-title,
+.light-theme .panel h2,
+.light-theme .panel h3,
+.light-theme .metric-card strong,
+.light-theme .site-card h3,
+.light-theme .catalog-card h3,
+.light-theme .insight-card h3,
+.light-theme .access-cards h3,
+.light-theme .learning-grid h2,
+.light-theme .section-intro h2,
+.light-theme .access-intro h2,
+.light-theme .education-strip h2,
+.light-theme .about-content h2,
+.light-theme .settings-copy h3,
+.light-theme .status-card h1,
+.light-theme .auth-box h2 {
+  color: var(--ui-heading);
+}
+.light-theme .page-header p,
+.light-theme .panel p,
+.light-theme .site-copy p,
+.light-theme .catalog-card p,
+.light-theme .insight-card p,
+.light-theme .access-cards p,
+.light-theme .section-intro > p,
+.light-theme .access-intro p,
+.light-theme .about-content p,
+.light-theme .learning-grid p,
+.light-theme .conditions span,
+.light-theme .metric-card span,
+.light-theme .rank-card p,
+.light-theme .source-card > p,
+.light-theme .status-card > p,
+.light-theme .auth-box > p {
+  color: var(--ui-copy);
+}
+.light-theme .metric-card small,
+.light-theme .coordinate-row span,
+.light-theme .site-coords,
+.light-theme .source-card dt,
+.light-theme .chart-actions,
+.light-theme .side-bottom small,
+.light-theme .app-topbar,
+.light-theme .footer-bottom,
+.light-theme .form-field > span,
+.light-theme .comparison-card > p,
+.light-theme .preview-role-grid span small,
+.light-theme .notification-list > span,
+.light-theme .settings-copy p,
+.light-theme .rank-card > b {
+  color: var(--ui-muted);
+}
+.light-theme .nav-links a,
+.light-theme .sidebar nav a,
+.light-theme .footer-links a,
+.light-theme .concepts a,
+.light-theme .line-arrow,
+.light-theme .table-action {
+  color: #294b5c;
+}
+.light-theme .nav-links a:hover,
+.light-theme .nav-links a.active,
+.light-theme .sidebar nav a:hover,
+.light-theme .sidebar nav a.active {
+  color: #041d29;
+}
+.light-theme .eyebrow,
+.light-theme .text-link,
+.light-theme .panel-title a {
+  color: var(--ui-link);
+}
+.light-theme .form-field input,
+.light-theme .form-field select,
+.light-theme .form-field textarea,
+.light-theme .filter-row input,
+.light-theme .utility-search input {
+  color: #102a37;
+}
+.light-theme .form-field input::placeholder,
+.light-theme .form-field textarea::placeholder,
+.light-theme .filter-row input::placeholder,
+.light-theme .utility-search input::placeholder {
+  color: #68818f;
+}
+.light-theme select option {
+  color: #17313d;
+  background: #f5fbfd;
+}
+.light-theme .button {
+  background: #087e9c;
+  color: #ffffff;
+}
+.light-theme .button:hover {
+  background: #056b86;
+  color: #ffffff;
+}
+.light-theme .button.ghost {
+  background: rgba(255, 255, 255, 0.55);
+  color: #173a49;
+}
+.light-theme .button.ghost:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #092531;
+}
+.light-theme .theme-toggle,
+.light-theme .filter,
+.light-theme .chip,
+.light-theme .panel-toolbar button,
+.light-theme .settings-nav button {
+  color: #365766;
+}
+.light-theme .filter.active,
+.light-theme .chip.active,
+.light-theme .panel-toolbar button.active,
+.light-theme .settings-nav button.active {
+  color: #005d75;
+}
+.light-theme .status-pill {
+  color: #284957;
+}
+.light-theme .model-badge {
+  background: rgba(0, 118, 148, 0.09);
+  border-color: rgba(0, 105, 134, 0.28);
+  color: #005e77;
+}
+.light-theme .result-list span {
+  color: #526f80;
+}
+.light-theme .result-list b,
+.light-theme .coordinate-row b,
+.light-theme .conditions strong,
+.light-theme td {
+  color: #183542;
+}
+.light-theme th {
+  color: #3f6070;
+}
+.light-theme .recharts-text,
+.light-theme .recharts-cartesian-axis-tick-value {
+  fill: #4d6b7b;
+}
+.light-theme .recharts-cartesian-grid line {
+  stroke: rgba(36, 82, 105, 0.18);
+}
+.light-theme .preview-data,
+.light-theme .preview-data h3 {
+  color: #102b38;
+}
+.light-theme .hero,
+.light-theme .hero h1,
+.light-theme .hero h2,
+.light-theme .hero p,
+.light-theme .hero .nav-links a,
+.light-theme .hero .logo,
+.light-theme .auth-visual,
+.light-theme .auth-visual h1,
+.light-theme .auth-visual p,
+.light-theme .moon-viz,
+.light-theme .moon-viz *,
+.light-theme .report-chart,
+.light-theme .report-chart * {
+  color: #eef8fc;
+}
+.light-theme .hero .nav-links a {
+  color: #c6d5df;
+}
+.light-theme .hero .nav-links a:hover,
+.light-theme .hero .nav-links a.active {
+  color: #ffffff;
+}
+.light-theme .public-page:not(:has(.hero)) .public-nav .logo,
+.light-theme .public-page:not(:has(.hero)) .public-nav .nav-links a,
+.light-theme .public-page:not(:has(.hero)) .public-nav .text-link {
+  color: #173746;
+}
+
+@media (max-width: 780px) {
+  .light-theme .nav-links.open {
+    background: rgba(244, 251, 253, 0.94);
+  }
+  .light-theme .nav-links.open a {
+    color: #173746;
+  }
+}
