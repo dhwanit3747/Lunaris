@@ -197,7 +197,6 @@ export function AppShell({ role, children }: { role: Role; children: React.React
             · 14:32 UTC
           </div>
           <div>
-            <ModelBadge />
             <ThemeToggle />
             <button
               className="icon-btn"

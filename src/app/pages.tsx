@@ -1667,10 +1667,6 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
       : mode === "register"
         ? "Request access"
         : "Reset your password";
-  const enterPreview = (previewRole: string, destination: string) => {
-    localStorage.setItem("lunaris-preview-role", previewRole);
-    nav(destination);
-  };
   return (
     <div className="auth-page">
       <div className="auth-theme">
@@ -1689,50 +1685,6 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           <p>
             Explore, compare and communicate the conditions that shape lunar surface operations.
           </p>
-          {mode === "login" && (
-            <>
-              <div className="preview-access-box">
-                <div>
-                  <ModelBadge />
-                  <b>Preview a workspace</b>
-                  <small>No email, password, or approval required.</small>
-                </div>
-                <div className="preview-role-grid">
-                  <button onClick={() => enterPreview("Public Explorer", "/explore")}>
-                    <Globe2 />
-                    <span>
-                      Public<small>Explorer</small>
-                    </span>
-                  </button>
-                  <button onClick={() => enterPreview("Researcher", "/researcher/dashboard")}>
-                    <BookOpen />
-                    <span>
-                      Researcher<small>Workspace</small>
-                    </span>
-                  </button>
-                  <button
-                    onClick={() =>
-                      enterPreview("Scientist / Mission Professional", "/mission/dashboard")
-                    }
-                  >
-                    <Telescope />
-                    <span>
-                      Scientist<small>Mission control</small>
-                    </span>
-                  </button>
-                  <button onClick={() => enterPreview("Administrator", "/admin/dashboard")}>
-                    <ShieldCheck />
-                    <span>
-                      Admin<small>Access ops</small>
-                    </span>
-                  </button>
-                </div>
-              </div>
-              <div className="auth-divider">
-                <span>or sign in with your credentials</span>
-              </div>
-            </>
-          )}
         </div>
         <small>Independent concept · Not an official NASA product</small>
       </div>
@@ -1850,11 +1802,11 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
             className="button full"
             onClick={() => {
               setError("");
-              if (!email.includes("@")) {
+              if (mode !== "login" && !email.includes("@")) {
                 setError("Enter a valid email address to continue.");
                 return;
               }
-              if (mode !== "forgot" && password.length < 6) {
+              if (mode === "register" && password.length < 6) {
                 setError("Use at least six characters.");
                 return;
               }
@@ -2012,9 +1964,7 @@ export function AccessBoundary({
   role: "Researcher" | "Scientist / Mission Professional" | "Administrator";
   children: React.ReactNode;
 }) {
-  const [previewAccess, setPreviewAccess] = useState(
-    () => localStorage.getItem("lunaris-preview-role") === role,
-  );
+  const [previewAccess] = useState(() => localStorage.getItem("lunaris-preview-role") === role);
   if (previewAccess) return <>{children}</>;
   const label =
     role === "Scientist / Mission Professional"
@@ -2035,25 +1985,16 @@ export function AccessBoundary({
         <span className="eyebrow">Role-protected workspace</span>
         <h1>{label} requires approved access</h1>
         <p>
-          In production, this route requires a verified account with the matching role. You can
-          enter a local preview workspace without creating an account.
+          This route requires a signed-in account with the matching role. Return to sign in and
+          choose the workspace you need to test.
         </p>
         <StatusPill status="Access restricted" />
         <div className="status-actions">
           <Link className="button ghost" to="/login">
             Sign in with a role
           </Link>
-          <button
-            className="button"
-            onClick={() => {
-              localStorage.setItem("lunaris-preview-role", role);
-              setPreviewAccess(true);
-            }}
-          >
-            Preview workspace <ArrowRight size={14} />
-          </button>
         </div>
-        <small>FRONTEND ROLE AUTHORIZATION · LOCAL PREVIEW ACCESS</small>
+        <small>FRONTEND ROLE AUTHORIZATION</small>
       </div>
     </div>
   );

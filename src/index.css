@@ -3012,6 +3012,61 @@ tbody tr:hover {
   }
 }
 
+/* Authentication image panel always sits on photography and must not inherit light-mode ink. */
+.auth-visual,
+.light-theme .auth-visual {
+  color: #f4fbff !important;
+}
+.auth-visual h1,
+.auth-visual p,
+.auth-visual .logo,
+.auth-visual .logo b,
+.auth-visual .logo small,
+.auth-visual .logo-mark,
+.auth-visual > small,
+.light-theme .auth-visual h1,
+.light-theme .auth-visual p,
+.light-theme .auth-visual .logo,
+.light-theme .auth-visual .logo b,
+.light-theme .auth-visual .logo small,
+.light-theme .auth-visual .logo-mark,
+.light-theme .auth-visual > small {
+  color: #f4fbff !important;
+  text-shadow: 0 2px 14px rgba(0, 7, 18, 0.72);
+}
+.auth-visual p,
+.light-theme .auth-visual p {
+  color: #d2e1ea !important;
+}
+.auth-visual .eyebrow,
+.light-theme .auth-visual .eyebrow {
+  color: #86e9ff !important;
+  text-shadow: 0 2px 12px rgba(0, 15, 28, 0.8);
+}
+.auth-visual .logo-mark,
+.light-theme .auth-visual .logo-mark {
+  border-color: rgba(220, 247, 255, 0.65) !important;
+}
+.auth-visual .logo-mark i,
+.light-theme .auth-visual .logo-mark i {
+  border-color: rgba(220, 247, 255, 0.58) !important;
+}
+.auth-visual:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(2, 9, 17, 0.5), rgba(2, 9, 17, 0.08));
+  z-index: 0;
+}
+.auth-visual {
+  position: relative;
+}
+.auth-visual > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Unified liquid-glass material system */
 :root {
   --glass-bg: rgba(11, 24, 39, 0.62);
