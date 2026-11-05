@@ -45,7 +45,7 @@ import {
 import {
   AppShell,
   DataTable,
-  DemoBadge,
+  ModelBadge,
   FormField,
   Logo,
   MetricCard,
@@ -146,7 +146,7 @@ export function LandingPage() {
             <span>
               <i /> LIVE ENVIRONMENT · SHACKLETON REGION
             </span>
-            <DemoBadge />
+            <ModelBadge />
           </div>
           <div className="preview-grid">
             <MoonGlobe />
@@ -249,7 +249,7 @@ export function LandingPage() {
           number="03"
           label="Featured locations"
           title="Six sites. Different mission realities."
-          body="Compare candidate south polar regions with historic Apollo sites. All conditions shown are simulated demonstration data."
+          body="Compare candidate south polar regions with historic Apollo sites. Conditions are modeled previews, not NASA measurements."
         />
         <div className="site-cards">
           {sites.map((site, i) => (
@@ -292,7 +292,7 @@ export function LandingPage() {
           {[
             ["01", "Select a location", "Choose a candidate site or define custom coordinates."],
             ["02", "Set mission time", "Select landing date, time and surface duration."],
-            ["03", "Analyze geometry", "Inspect simulated Sun and Earth conditions over time."],
+            ["03", "Analyze geometry", "Inspect modeled Sun and Earth conditions over time."],
             ["04", "Compare constraints", "Understand power and communication trade-offs."],
           ].map(([n, t, d], i) => (
             <div className="step" key={n}>
@@ -427,7 +427,7 @@ function PublicFooter() {
       </div>
       <div className="footer-links">
         <p>
-          LUNARIS is an independent hackathon demonstration. It is not an official NASA product and
+          LUNARIS is an independent mission-planning concept. It is not an official NASA product and
           does not imply NASA or JPL endorsement.
         </p>
         {[
@@ -446,7 +446,7 @@ function PublicFooter() {
         ))}
       </div>
       <div className="footer-bottom">
-        <span>© 2030 LUNARIS · Demonstration interface</span>
+        <span>© 2030 LUNARIS · Mission intelligence concept</span>
         <span>Data references: NASA/JPL Horizons · LROC · LOLA · PDS</span>
       </div>
     </footer>
@@ -461,7 +461,7 @@ export function ExplorePage() {
       <PageHeader
         eyebrow="Public explorer"
         title="Explore the Lunar South Pole"
-        description="Select a site and move through time to understand simulated sunlight and Earth visibility."
+        description="Select a site and move through time to understand modeled sunlight and Earth visibility."
         actions={
           <ButtonLink to="/learn" ghost>
             <BookOpen size={15} />
@@ -480,14 +480,14 @@ export function ExplorePage() {
                 South polar map
               </button>
             </div>
-            <DemoBadge />
+            <ModelBadge />
           </div>
           <div className={view === "map" ? "map-view" : ""}>
             <MoonGlobe selected={selected} onSelect={setSelected} />
             {view === "map" && (
               <div className="map-mode-label">
                 <Map size={14} />
-                Polar stereographic demonstration view
+                Polar stereographic preview view
               </div>
             )}
           </div>
@@ -512,14 +512,14 @@ export function ExplorePage() {
         <MetricCard
           label="Next darkness"
           value="06h 42m"
-          detail="Simulated estimate"
+          detail="Modeled · not measured"
           tone="purple"
           icon={Clock3}
         />
         <MetricCard
           label="Communication"
           value="Nominal"
-          detail="Geometry only · Demo"
+          detail="Modeled geometry only"
           tone="green"
           icon={Radio}
         />
@@ -634,7 +634,7 @@ export function SitePage() {
               className="button ghost"
               onClick={() => {
                 localStorage.setItem("lunaris-saved-site", site.id);
-                setToast(`${site.name} saved to your demo workspace`);
+                setToast(`${site.name} saved to your workspace`);
               }}
             >
               <Save size={15} />
@@ -662,10 +662,10 @@ export function SitePage() {
       </div>
       <div className="two-charts">
         <div className="panel">
-          <ScienceChart type="solar" title="Simulated solar elevation" />
+          <ScienceChart type="solar" title="Modeled solar elevation" />
         </div>
         <div className="panel">
-          <ScienceChart type="earth" title="Simulated Earth elevation" />
+          <ScienceChart type="earth" title="Modeled Earth elevation" />
         </div>
       </div>
       {toast && <Toast message={toast} onClose={() => setToast("")} />}
@@ -692,7 +692,7 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
           <>
             <button
               className="button ghost"
-              onClick={() => setToast("Demo mission brief generated with simulation disclaimer")}
+              onClick={() => setToast("Mission brief generated with model-data disclaimer")}
             >
               <FileText size={15} />
               Generate brief
@@ -767,7 +767,7 @@ export function WorkspaceDashboard({ role }: { role: "researcher" | "mission" })
           <p>72-hour surface mission at Shackleton Rim A.</p>
           <div className="scenario-status">
             <StatusPill status="Favorable" />
-            <DemoBadge />
+            <ModelBadge />
           </div>
           <div className="result-list">
             <span>
@@ -844,7 +844,7 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
           <>
             <button
               className="button ghost"
-              onClick={() => setToast(`${meta.title} demonstration data exported as CSV`)}
+              onClick={() => setToast(`${meta.title} modeled preview exported as CSV`)}
             >
               <Download size={15} />
               Export data
@@ -866,7 +866,7 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
         <div className="panel viz-panel">
           <div className="panel-title">
             <span>{key === "terrain" ? "Digital terrain model" : "Local environment view"}</span>
-            <DemoBadge />
+            <ModelBadge />
           </div>
           <MoonGlobe compact />
           <div className="horizon-profile">
@@ -910,7 +910,7 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
         </div>
         <div className="panel timeline-card">
           <div className="panel-title">
-            Visibility timeline <DemoBadge />
+            Visibility timeline <ModelBadge />
           </div>
           <VisibilityBands type={type} />
           <div className="science-note">
@@ -1053,12 +1053,12 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
     <AppShell role={role}>
       <PageHeader
         title={role === "mission" ? "Scientific Data Center" : "Dataset Explorer"}
-        description="Review source coverage, resolution and integration readiness. No live scientific service is queried in this demo."
+        description="Review source coverage, resolution and integration readiness. No live scientific service is currently queried."
         actions={
           <button
             className="button ghost"
             onClick={() =>
-              setToast("Integration guide opened in demo mode; live credentials are not configured")
+              setToast("Integration guide opened; live credentials are not configured")
             }
           >
             <Database size={15} />
@@ -1103,7 +1103,7 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
         <ShieldCheck />
         <span>
           <b>Data integrity</b>Dataset names and descriptions are references. Availability
-          indicators and analytical outputs are simulated until live integrations are validated.
+          indicators are modeled previews until live integrations are validated.
         </span>
       </div>
       {selectedDataset && (
@@ -1116,7 +1116,7 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
               </button>
             </div>
             <div className="modal-content">
-              <DemoBadge />
+              <ModelBadge />
               <h2>{selectedDataset[0]}</h2>
               <p>{selectedDataset[1]}</p>
               <div className="result-list">
@@ -1133,14 +1133,14 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
               <div className="science-note">
                 <AlertTriangle />
                 <span>
-                  <b>Reference only</b>No live data is downloaded by this demonstration.
+                  <b>Reference only</b>No live data is downloaded by this interface.
                 </span>
               </div>
               <button
                 className="button full"
                 onClick={() => {
                   setSelectedDataset(null);
-                  setToast(`${selectedDataset[0]} added to the demo data queue`);
+                  setToast(`${selectedDataset[0]} added to the reference queue`);
                 }}
               >
                 Add reference to workspace
@@ -1165,7 +1165,7 @@ function OptimizationPage() {
       <div className="optimization-grid">
         <div className="panel form-panel">
           <div className="panel-title">
-            Mission constraints <DemoBadge />
+            Mission constraints <ModelBadge />
           </div>
           <div className="form-grid one">
             <FormField label="Preferred region">
@@ -1195,7 +1195,7 @@ function OptimizationPage() {
           </div>
           <button className="button full" onClick={() => setRun(true)}>
             <Activity size={15} />
-            Run demonstration optimization
+            Run modeled optimization
           </button>
         </div>
         <div className="ranked-list">
@@ -1228,7 +1228,7 @@ function OptimizationPage() {
                     </span>
                   </div>
                 </div>
-                <DemoBadge />
+                <ModelBadge />
               </div>
             ))
           ) : (
@@ -1306,7 +1306,7 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
   const [title, setTitle] = useState("Lunar South Pole Site Assessment");
   const [window, setWindow] = useState("18–21 August 2030");
   const [notes, setNotes] = useState(
-    "Comparison of simulated power and direct-to-Earth geometry for candidate surface operations.",
+    "Comparison of modeled power and direct-to-Earth geometry for candidate surface operations.",
   );
   return (
     <AppShell role={role}>
@@ -1314,7 +1314,7 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
         title={role === "mission" ? "Mission Reports" : "Research Reports"}
         description="Assemble attributable intelligence into a review-ready report."
         actions={
-          <button className="button" onClick={() => setToast("Demo report prepared for export")}>
+          <button className="button" onClick={() => setToast("Preview report prepared for export")}>
             <Download size={15} />
             Export PDF
           </button>
@@ -1342,17 +1342,17 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
           </label>
           <label className="check-row">
             <input type="checkbox" defaultChecked />
-            Include simulation disclaimer
+            Include model-data disclaimer
           </label>
         </div>
         <div className="report-preview panel">
           <div className="report-paper">
             <span>LUNARIS · MISSION INTELLIGENCE</span>
             <h2>{title || "Untitled mission report"}</h2>
-            <p>Demonstration report · {window}</p>
+            <p>Modeled preview · {window}</p>
             <div className="report-hero" />
             <h3>Executive summary</h3>
-            <p>{notes || "Add research notes to complete this demonstration report."}</p>
+            <p>{notes || "Add research notes to complete this preview report."}</p>
             <div className="report-chart">
               <ScienceChart type="solar" height={150} />
             </div>
@@ -1370,7 +1370,7 @@ function SavedScenarios() {
     <AppShell role="researcher">
       <PageHeader
         title="Saved Scenarios"
-        description="Return to demonstration analyses and continue your work."
+        description="Return to modeled preview analyses and continue your work."
         actions={
           <button className="button" onClick={() => navigate("/researcher/explorer")}>
             <Plus size={15} />
@@ -1501,7 +1501,7 @@ function SettingsPage({ role }: { role: "researcher" | "mission" }) {
               <ShieldCheck />
               <h3>Attribution is always preserved</h3>
               <p>
-                Reports include referenced source names, simulation status, and the independent
+                Reports include referenced source names, model-data status, and the independent
                 project disclaimer by default.
               </p>
             </div>
@@ -1619,8 +1619,8 @@ export function AboutPage() {
           understandable and actionable.
         </h1>
         <p>
-          LUNARIS is an independent hackathon demonstration exploring how mission environment data
-          could become clearer, comparable and more useful.
+          LUNARIS is an independent concept exploring how mission environment data could become
+          clearer, comparable and more useful.
         </p>
       </section>
       <section className="about-content">
@@ -1634,8 +1634,8 @@ export function AboutPage() {
             solar geometry, Earth visibility and operational constraints.
           </p>
           <p>
-            This frontend uses realistic but simulated values to demonstrate an interface
-            architecture ready for validated scientific data services.
+            This frontend uses clearly labeled modeled values to present an interface architecture
+            ready for validated scientific data services.
           </p>
           <div className="science-note">
             <ShieldCheck />
@@ -1667,8 +1667,8 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
       : mode === "register"
         ? "Request access"
         : "Reset your password";
-  const enterDemo = (demoRole: string, destination: string) => {
-    localStorage.setItem("lunaris-demo-role", demoRole);
+  const enterPreview = (previewRole: string, destination: string) => {
+    localStorage.setItem("lunaris-preview-role", previewRole);
     nav(destination);
   };
   return (
@@ -1691,20 +1691,20 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           </p>
           {mode === "login" && (
             <>
-              <div className="demo-access-box">
+              <div className="preview-access-box">
                 <div>
-                  <DemoBadge />
-                  <b>Test without an account</b>
+                  <ModelBadge />
+                  <b>Preview a workspace</b>
                   <small>No email, password, or approval required.</small>
                 </div>
-                <div className="demo-role-grid">
-                  <button onClick={() => enterDemo("Public Explorer", "/explore")}>
+                <div className="preview-role-grid">
+                  <button onClick={() => enterPreview("Public Explorer", "/explore")}>
                     <Globe2 />
                     <span>
                       Public<small>Explorer</small>
                     </span>
                   </button>
-                  <button onClick={() => enterDemo("Researcher", "/researcher/dashboard")}>
+                  <button onClick={() => enterPreview("Researcher", "/researcher/dashboard")}>
                     <BookOpen />
                     <span>
                       Researcher<small>Workspace</small>
@@ -1712,7 +1712,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
                   </button>
                   <button
                     onClick={() =>
-                      enterDemo("Scientist / Mission Professional", "/mission/dashboard")
+                      enterPreview("Scientist / Mission Professional", "/mission/dashboard")
                     }
                   >
                     <Telescope />
@@ -1720,7 +1720,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
                       Scientist<small>Mission control</small>
                     </span>
                   </button>
-                  <button onClick={() => enterDemo("Administrator", "/admin/dashboard")}>
+                  <button onClick={() => enterPreview("Administrator", "/admin/dashboard")}>
                     <ShieldCheck />
                     <span>
                       Admin<small>Access ops</small>
@@ -1729,12 +1729,12 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
                 </div>
               </div>
               <div className="auth-divider">
-                <span>or sign in with demo credentials</span>
+                <span>or sign in with your credentials</span>
               </div>
             </>
           )}
         </div>
-        <small>Independent demonstration · Not an official NASA product</small>
+        <small>Independent concept · Not an official NASA product</small>
       </div>
       <div className="auth-form">
         <Link to="/" className="auth-back">
@@ -1748,7 +1748,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
               ? "Enter your credentials to open your workspace."
               : mode === "register"
                 ? "Create a profile or submit a request for restricted access."
-                : "We will send a demonstration reset link."}
+                : "We will prepare a password reset request."}
           </p>
           {mode === "register" && (
             <>
@@ -1811,7 +1811,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
             </FormField>
           )}
           {mode === "login" && (
-            <FormField label="Demo workspace">
+            <FormField label="Requested workspace">
               <select value={role} onChange={(event) => setRole(event.target.value)}>
                 <option>Public Explorer</option>
                 <option>Researcher</option>
@@ -1855,7 +1855,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
                 return;
               }
               if (mode !== "forgot" && password.length < 6) {
-                setError("Use at least six characters for this demonstration.");
+                setError("Use at least six characters.");
                 return;
               }
               if (mode === "register" && (!name || !organization)) {
@@ -1887,7 +1887,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
                 "Scientist / Mission Professional": "/mission/dashboard",
                 Administrator: "/admin/dashboard",
               };
-              localStorage.setItem("lunaris-demo-role", role);
+              localStorage.setItem("lunaris-preview-role", role);
               nav(destinations[role]);
             }}
           >
@@ -1901,7 +1901,7 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
           {mode === "login" && (
             <button
               className="button ghost full"
-              onClick={() => setError("Google sign-in is unavailable in this local demonstration.")}
+              onClick={() => setError("Google sign-in is not connected in this interface.")}
             >
               <Globe2 />
               Continue with Google <small>Placeholder</small>
@@ -1934,7 +1934,7 @@ export function AccessStatusPage() {
       icon: Mail,
       eyebrow: "Verification required",
       title: "Check your inbox",
-      body: "A demonstration verification message has been prepared. No real email is sent by this frontend.",
+      body: "A verification preview has been prepared. No real email is sent by this frontend.",
       status: "Email verification",
     },
     "application-submitted": {
@@ -1955,7 +1955,7 @@ export function AccessStatusPage() {
       icon: UserCheck,
       eyebrow: "Access granted",
       title: "Your explorer workspace is ready",
-      body: "You can begin exploring simulated lunar environments and public educational content.",
+      body: "You can begin exploring modeled lunar environments and public educational content.",
       status: "Active",
     },
     "access-denied": {
@@ -1999,7 +1999,7 @@ export function AccessStatusPage() {
             </Link>
           )}
         </div>
-        <small>SIMULATED ACCESS FLOW · NO ACCOUNT OR EMAIL WAS CREATED</small>
+        <small>ACCESS FLOW PREVIEW · NO ACCOUNT OR EMAIL WAS CREATED</small>
       </div>
     </div>
   );
@@ -2012,10 +2012,10 @@ export function AccessBoundary({
   role: "Researcher" | "Scientist / Mission Professional" | "Administrator";
   children: React.ReactNode;
 }) {
-  const [demoAccess, setDemoAccess] = useState(
-    () => localStorage.getItem("lunaris-demo-role") === role,
+  const [previewAccess, setPreviewAccess] = useState(
+    () => localStorage.getItem("lunaris-preview-role") === role,
   );
-  if (demoAccess) return <>{children}</>;
+  if (previewAccess) return <>{children}</>;
   const label =
     role === "Scientist / Mission Professional"
       ? "Mission Control"
@@ -2036,7 +2036,7 @@ export function AccessBoundary({
         <h1>{label} requires approved access</h1>
         <p>
           In production, this route requires a verified account with the matching role. You can
-          enter a clearly labeled local demonstration session without creating an account.
+          enter a local preview workspace without creating an account.
         </p>
         <StatusPill status="Access restricted" />
         <div className="status-actions">
@@ -2046,14 +2046,14 @@ export function AccessBoundary({
           <button
             className="button"
             onClick={() => {
-              localStorage.setItem("lunaris-demo-role", role);
-              setDemoAccess(true);
+              localStorage.setItem("lunaris-preview-role", role);
+              setPreviewAccess(true);
             }}
           >
-            Enter demo workspace <ArrowRight size={14} />
+            Preview workspace <ArrowRight size={14} />
           </button>
         </div>
-        <small>FRONTEND ROLE AUTHORIZATION · DEMONSTRATION SESSION ONLY</small>
+        <small>FRONTEND ROLE AUTHORIZATION · LOCAL PREVIEW ACCESS</small>
       </div>
     </div>
   );
@@ -2150,7 +2150,7 @@ export function AdminPage() {
               ))}
               <button
                 className="button ghost full"
-                onClick={() => setToast(`${r} permissions saved for this demo session`)}
+                onClick={() => setToast(`${r} permissions saved for this browser session`)}
               >
                 Save permissions
               </button>

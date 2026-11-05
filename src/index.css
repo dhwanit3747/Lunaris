@@ -159,7 +159,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
-.demo-badge {
+.model-badge {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -173,7 +173,7 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.demo-badge span {
+.model-badge span {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -1331,7 +1331,7 @@ footer {
 .panel-title:has(> svg) {
   justify-content: flex-start;
 }
-.panel-title .demo-badge {
+.panel-title .model-badge {
   margin-left: auto;
 }
 .metric-grid {
@@ -2949,7 +2949,7 @@ tbody tr:hover {
   .rank-card {
     grid-template-columns: 25px 1fr;
   }
-  .rank-card > .demo-badge {
+  .rank-card > .model-badge {
     grid-column: 2;
   }
   .filter-row {
@@ -3012,7 +3012,381 @@ tbody tr:hover {
   }
 }
 
-/* Appearance controls and credential-free demo access */
+/* Unified liquid-glass material system */
+:root {
+  --glass-bg: rgba(11, 24, 39, 0.62);
+  --glass-bg-strong: rgba(12, 27, 44, 0.82);
+  --glass-line: rgba(181, 229, 255, 0.18);
+  --glass-highlight: rgba(255, 255, 255, 0.13);
+  --glass-shadow: 0 22px 60px rgba(0, 7, 18, 0.34);
+  --glass-blur: 24px;
+  --glass-radius: 18px;
+  --cyan: #70e3ff;
+  --blue: #2ca7d8;
+  --gold: #70e3ff;
+  --green: #73e6ce;
+}
+body {
+  background:
+    radial-gradient(circle at 15% 8%, rgba(32, 139, 181, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 32%, rgba(40, 108, 167, 0.14), transparent 32%), #050b14;
+  background-attachment: fixed;
+}
+.app-shell,
+.app-main {
+  background: transparent;
+}
+.panel,
+.metric-card,
+.preview-shell,
+.site-card,
+.insight-card,
+.access-cards article,
+.learning-grid article,
+.catalog-card,
+.source-card,
+.comparison-card,
+.role-card,
+.report-preview,
+.report-form,
+.form-panel,
+.result-panel,
+.settings-nav {
+  background: linear-gradient(145deg, var(--glass-highlight), transparent 36%), var(--glass-bg);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--glass-radius);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(var(--glass-blur)) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(145%);
+  overflow: hidden;
+}
+.sidebar {
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.07), transparent 32%), rgba(7, 17, 29, 0.76);
+  border-right: 1px solid var(--glass-line);
+  box-shadow:
+    16px 0 45px rgba(0, 7, 17, 0.24),
+    inset -1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+}
+.app-topbar,
+.public-nav {
+  background: rgba(7, 17, 29, 0.5);
+  border-color: var(--glass-line);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+.public-nav {
+  top: 10px;
+  left: 3vw;
+  width: 94vw;
+  height: 62px;
+  padding: 0 18px;
+  border: 1px solid var(--glass-line);
+  border-radius: 18px;
+  box-shadow:
+    0 16px 50px rgba(0, 0, 0, 0.24),
+    inset 0 1px rgba(255, 255, 255, 0.08);
+}
+.light-public .public-nav {
+  position: absolute;
+}
+.button,
+.button.ghost,
+.theme-toggle,
+.filter,
+.chip,
+.icon-button,
+.icon-btn,
+.play-btn,
+.status-pill,
+.model-badge {
+  border-radius: 999px;
+}
+.button {
+  background: rgba(112, 227, 255, 0.92);
+  border-color: rgba(198, 245, 255, 0.8);
+  box-shadow:
+    0 9px 26px rgba(43, 180, 219, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.7);
+}
+.button.ghost,
+.theme-toggle,
+.filter,
+.chip {
+  background: rgba(164, 217, 243, 0.08);
+  border-color: rgba(182, 226, 248, 0.18);
+  backdrop-filter: blur(12px);
+}
+.button.ghost:hover,
+.theme-toggle:hover,
+.filter:hover,
+.chip:hover {
+  background: rgba(164, 217, 243, 0.16);
+  border-color: rgba(145, 229, 255, 0.5);
+}
+.filter.active,
+.chip.active,
+.panel-toolbar button.active {
+  background: rgba(76, 195, 229, 0.18);
+  color: #dff9ff;
+  box-shadow: inset 0 0 0 1px rgba(112, 227, 255, 0.3);
+}
+.form-field input,
+.form-field select,
+.form-field textarea,
+.filter-row > label,
+.utility-search {
+  background: rgba(4, 13, 24, 0.38);
+  border-color: rgba(182, 226, 248, 0.17);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: rgba(112, 227, 255, 0.68);
+  box-shadow: 0 0 0 3px rgba(112, 227, 255, 0.09);
+}
+.metric-icon,
+.source-icon,
+.icon-button {
+  border-radius: 12px;
+  background: rgba(91, 211, 239, 0.1);
+  border-color: rgba(112, 227, 255, 0.25);
+}
+.coordinate-row,
+.constraint-note,
+.science-note,
+.access-notice,
+.settings-copy,
+.mini-window {
+  border-radius: 13px;
+}
+.toast,
+.utility-popover,
+.modal {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 35%), var(--glass-bg-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: 16px;
+  box-shadow:
+    0 28px 75px rgba(0, 5, 14, 0.52),
+    inset 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(28px) saturate(155%);
+}
+.public-page .section,
+.education-strip,
+footer,
+.about-content,
+.learning-grid,
+.public-title {
+  background-color: transparent;
+}
+.intelligence,
+.challenge,
+.sites-section,
+.process,
+.access,
+.education-strip {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(33, 132, 177, 0.09), transparent 28%), transparent;
+}
+.three-cards,
+.access-cards {
+  background: transparent;
+  border: 0;
+  gap: 14px;
+}
+.access-cards article,
+.three-cards .insight-card {
+  border: 1px solid var(--glass-line);
+}
+.site-cards {
+  gap: 20px;
+}
+.moon-viz {
+  border-radius: calc(var(--glass-radius) - 1px);
+  background: radial-gradient(
+    circle at 50% 55%,
+    rgba(39, 88, 121, 0.55),
+    rgba(4, 12, 22, 0.78) 66%
+  );
+}
+.preview-shell,
+.command-grid > .panel,
+.explorer-grid > .panel,
+.analysis-grid > .panel {
+  position: relative;
+}
+.preview-shell:before,
+.command-grid > .panel:before,
+.explorer-grid > .panel:before,
+.analysis-grid > .panel:before {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(214, 248, 255, 0.5), transparent);
+}
+.hero .public-nav {
+  background: rgba(7, 17, 29, 0.45);
+}
+.hero-values > div {
+  background: rgba(8, 20, 34, 0.34);
+  backdrop-filter: blur(12px);
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.hero-values > div:first-child {
+  padding-left: 16px;
+  border-radius: 14px 0 0 14px;
+}
+.hero-values > div:last-child {
+  border-radius: 0 14px 14px 0;
+}
+.status-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 35%), var(--glass-bg);
+  border-color: var(--glass-line);
+  border-radius: 24px;
+  backdrop-filter: blur(26px) saturate(150%);
+}
+.auth-form {
+  background:
+    radial-gradient(circle at 80% 12%, rgba(49, 153, 195, 0.15), transparent 28%),
+    rgba(5, 13, 23, 0.78);
+  backdrop-filter: blur(20px);
+}
+.preview-access-box {
+  background: rgba(113, 207, 238, 0.07);
+  border-color: var(--glass-line);
+  border-radius: 16px;
+  backdrop-filter: blur(18px);
+}
+.preview-role-grid button {
+  border-radius: 12px;
+  background: rgba(151, 218, 244, 0.07);
+  border-color: var(--glass-line);
+}
+
+.light-theme {
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(250, 253, 255, 0.82);
+  --glass-line: rgba(31, 105, 139, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 22px 60px rgba(37, 88, 111, 0.13);
+  --cyan: #067b99;
+  --blue: #166d9c;
+  --gold: #067b99;
+  --green: #187b72;
+}
+.light-theme body {
+  background:
+    radial-gradient(circle at 12% 7%, rgba(55, 171, 209, 0.2), transparent 30%),
+    radial-gradient(circle at 88% 30%, rgba(81, 145, 195, 0.14), transparent 34%), #e8f2f7;
+  background-attachment: fixed;
+}
+.light-theme .panel,
+.light-theme .metric-card,
+.light-theme .sidebar,
+.light-theme .app-topbar,
+.light-theme .catalog-card,
+.light-theme .source-card,
+.light-theme .comparison-card,
+.light-theme .role-card,
+.light-theme .settings-nav,
+.light-theme .form-panel,
+.light-theme .result-panel,
+.light-theme .insight-card,
+.light-theme .site-card,
+.light-theme .access-cards article,
+.light-theme .learning-grid article,
+.light-theme .preview-shell {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.18) 46%),
+    rgba(245, 251, 254, 0.52);
+  border-color: var(--glass-line);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px rgba(255, 255, 255, 0.95);
+}
+.light-theme .sidebar {
+  background: rgba(243, 250, 253, 0.72);
+}
+.light-theme .app-topbar,
+.light-theme .public-nav {
+  background: rgba(243, 250, 253, 0.62);
+}
+.light-theme .button {
+  background: #087e9c;
+  color: #f7fdff;
+  border-color: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 10px 28px rgba(11, 114, 145, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.35);
+}
+.light-theme .button.ghost,
+.light-theme .theme-toggle,
+.light-theme .filter,
+.light-theme .chip {
+  color: #244453;
+  background: rgba(255, 255, 255, 0.46);
+  border-color: rgba(33, 105, 137, 0.18);
+}
+.light-theme .filter.active,
+.light-theme .chip.active,
+.light-theme .panel-toolbar button.active {
+  color: #075c73;
+  background: rgba(15, 142, 175, 0.12);
+}
+.light-theme .form-field input,
+.light-theme .form-field select,
+.light-theme .form-field textarea,
+.light-theme .filter-row > label {
+  background: rgba(255, 255, 255, 0.54);
+  border-color: rgba(31, 105, 139, 0.17);
+}
+.light-theme .auth-form {
+  background:
+    radial-gradient(circle at 80% 12%, rgba(49, 153, 195, 0.14), transparent 28%),
+    rgba(238, 247, 251, 0.78);
+}
+.light-theme .preview-access-box,
+.light-theme .preview-role-grid button {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(31, 105, 139, 0.17);
+}
+.light-theme .hero .public-nav,
+.light-theme .hero .theme-toggle {
+  background: rgba(7, 17, 29, 0.48);
+  color: #eefbff;
+  border-color: rgba(181, 229, 255, 0.2);
+}
+
+@media (max-width: 780px) {
+  .public-nav {
+    top: 8px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+  .panel,
+  .metric-card,
+  .catalog-card,
+  .source-card,
+  .comparison-card {
+    border-radius: 14px;
+  }
+}
+
+/* Appearance controls and credential-free preview access */
 .theme-toggle {
   min-height: 31px;
   display: inline-flex;
@@ -3038,36 +3412,36 @@ tbody tr:hover {
   right: 22px;
   top: 20px;
 }
-.demo-access-box {
+.preview-access-box {
   border: 1px solid #33445a;
   background: #0d1824;
   padding: 14px;
   margin-bottom: 18px;
 }
-.demo-access-box > div:first-child {
+.preview-access-box > div:first-child {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 4px 10px;
 }
-.demo-access-box > div:first-child .demo-badge {
+.preview-access-box > div:first-child .model-badge {
   grid-row: 1 / 3;
 }
-.demo-access-box b {
+.preview-access-box b {
   font: 500 11px "Space Grotesk";
   color: #d7e3ea;
 }
-.demo-access-box small {
+.preview-access-box small {
   color: #718195;
   font-size: 8px;
 }
-.demo-role-grid {
+.preview-role-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin-top: 13px;
 }
-.demo-role-grid button {
+.preview-role-grid button {
   min-height: 54px;
   border: 1px solid #2d3d52;
   background: #111d2a;
@@ -3079,20 +3453,20 @@ tbody tr:hover {
   text-align: left;
   cursor: pointer;
 }
-.demo-role-grid button:hover {
+.preview-role-grid button:hover {
   border-color: var(--cyan);
   background: #152533;
 }
-.demo-role-grid svg {
+.preview-role-grid svg {
   width: 16px;
   color: var(--cyan);
 }
-.demo-role-grid span {
+.preview-role-grid span {
   display: flex;
   flex-direction: column;
   font-size: 9px;
 }
-.demo-role-grid span small {
+.preview-role-grid span small {
   margin-top: 3px;
   font-size: 7px;
   color: #6c7c90;
@@ -3311,19 +3685,19 @@ tbody tr:hover {
 .light-theme .auth-box > p {
   color: #657789;
 }
-.light-theme .demo-access-box {
+.light-theme .preview-access-box {
   background: #fff;
   border-color: #c4d2da;
 }
-.light-theme .demo-access-box b {
+.light-theme .preview-access-box b {
   color: #172633;
 }
-.light-theme .demo-role-grid button {
+.light-theme .preview-role-grid button {
   background: #edf3f6;
   border-color: #c4d2dc;
   color: #293b49;
 }
-.light-theme .demo-role-grid button:hover {
+.light-theme .preview-role-grid button:hover {
   background: #fff;
 }
 .light-theme .status-page {
@@ -3364,7 +3738,7 @@ tbody tr:hover {
   .theme-toggle span {
     display: none;
   }
-  .demo-role-grid {
+  .preview-role-grid {
     grid-template-columns: 1fr;
   }
   .auth-theme {

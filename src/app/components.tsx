@@ -68,10 +68,10 @@ export function Logo({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function DemoBadge() {
+export function ModelBadge() {
   return (
-    <span className="demo-badge">
-      <span /> Simulated demo
+    <span className="model-badge">
+      <span /> Modeled preview
     </span>
   );
 }
@@ -197,7 +197,7 @@ export function AppShell({ role, children }: { role: Role; children: React.React
             · 14:32 UTC
           </div>
           <div>
-            <DemoBadge />
+            <ModelBadge />
             <ThemeToggle />
             <button
               className="icon-btn"
@@ -505,7 +505,7 @@ export function SiteDetail({ index = 0 }: { index?: number }) {
         <div>
           <Radio />
           <span>
-            Communication<strong>Nominal · Demo</strong>
+            Communication<strong>Modeled · Not measured</strong>
           </span>
         </div>
       </div>
@@ -534,7 +534,7 @@ export function MissionPlannerForm() {
     <div className="planner-grid">
       <div className="panel form-panel" key={formKey}>
         <div className="panel-title">
-          <Orbit /> Scenario configuration <DemoBadge />
+          <Orbit /> Scenario configuration <ModelBadge />
         </div>
         <div className="form-grid">
           <FormField label="Mission name">
@@ -595,7 +595,7 @@ export function MissionPlannerForm() {
             className="button ghost"
             onClick={() => {
               localStorage.setItem("lunaris-saved-scenario", "Artemis Surface Window A");
-              setToast("Scenario saved locally in demo mode");
+              setToast("Scenario saved to this browser");
             }}
           >
             <Save size={15} />
@@ -618,7 +618,7 @@ export function MissionPlannerForm() {
             </div>
             <h3>Constraints appear compatible</h3>
             <p>
-              Simulated geometry indicates favorable solar availability with one extended
+              Modeled geometry indicates favorable solar availability with one extended
               communication gap.
             </p>
             <div className="result-list">
@@ -640,7 +640,7 @@ export function MissionPlannerForm() {
           <div className="empty-result">
             <Orbit />
             <h3>Ready to calculate</h3>
-            <p>Configure the mission constraints, then calculate a demonstration scenario.</p>
+            <p>Configure the mission constraints, then calculate a modeled preview scenario.</p>
           </div>
         )}
       </div>

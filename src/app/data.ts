@@ -183,7 +183,7 @@ export const navByRole: Record<Role, Array<[string, string]>> = {
 export const pageMeta: Record<string, { title: string; kicker: string }> = {
   planner: {
     title: "Advanced Mission Planner",
-    kicker: "Configure mission constraints and evaluate a simulated scenario.",
+    kicker: "Configure mission constraints and evaluate a modeled preview scenario.",
   },
   "site-analysis": {
     title: "Site Analysis",
@@ -228,7 +228,7 @@ export const pageMeta: Record<string, { title: string; kicker: string }> = {
   },
   analytics: {
     title: "Illumination Analysis",
-    kicker: "Analyze simulated Sun and Earth geometry over time.",
+    kicker: "Analyze modeled Sun and Earth geometry over time.",
   },
   datasets: {
     title: "Dataset Explorer",
@@ -236,7 +236,7 @@ export const pageMeta: Record<string, { title: string; kicker: string }> = {
   },
   "saved-scenarios": {
     title: "Saved Scenarios",
-    kicker: "Return to your stored demonstration analyses.",
+    kicker: "Return to your stored preview analyses.",
   },
   profile: { title: "Researcher Profile", kicker: "Manage institution details and access status." },
 };
