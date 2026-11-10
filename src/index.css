@@ -2360,30 +2360,48 @@ tbody tr:hover {
 }
 .auth-visual {
   min-height: 100vh;
-  padding: 40px 5vw;
+  padding: 48px 5vw;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
-.auth-visual > div {
-  max-width: 520px;
+.auth-visual-top {
+  position: relative;
+  z-index: 2;
+}
+.auth-visual-body {
+  max-width: 540px;
+  position: relative;
+  z-index: 2;
+  margin: auto 0;
+}
+.auth-visual-foot {
+  position: relative;
+  z-index: 2;
 }
 .auth-visual h1 {
-  font: 500 clamp(40px, 5vw, 70px)/1 "Space Grotesk";
+  font: 600 clamp(36px, 4.2vw, 64px)/1.08 "Space Grotesk", sans-serif;
   margin-top: 18px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
 .auth-visual p {
-  color: #9eacbb;
-  line-height: 1.8;
+  color: #a4b4c4;
+  line-height: 1.75;
+  font-size: 14px;
   max-width: 480px;
-  margin-top: 20px;
+  margin-top: 18px;
 }
-.auth-visual > small {
-  color: #5f6f83;
-  font-size: 8px;
+.auth-visual small {
+  color: #63758a;
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 .auth-form {
   display: grid;
@@ -2394,10 +2412,18 @@ tbody tr:hover {
 }
 .auth-back {
   position: absolute;
-  top: 30px;
-  right: 35px;
-  color: #76859a;
-  font-size: 9px;
+  top: 32px;
+  right: 36px;
+  color: #8fa0b5;
+  font-size: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s ease;
+}
+.auth-back:hover {
+  color: #70e3ff;
 }
 .auth-box {
   width: min(400px, 100%);
@@ -3159,18 +3185,6 @@ tbody tr:hover {
 }
 
 /* Authentication image panel always sits on photography and must not inherit light-mode ink. */
-.auth-visual,
-.auth-visual h1,
-.auth-visual p,
-.auth-visual .logo,
-.auth-visual .logo b,
-.auth-visual .logo small,
-.auth-visual .logo-mark,
-.auth-visual > small,
-.auth-visual p,
-.auth-visual .eyebrow,
-.auth-visual .logo-mark,
-.auth-visual .logo-mark i,
 .auth-visual:after {
   content: "";
   position: absolute;

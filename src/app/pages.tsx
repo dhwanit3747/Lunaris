@@ -1980,13 +1980,17 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
         className="auth-visual"
         style={{ backgroundImage: `linear-gradient(180deg,rgba(2,6,13,.05),#050912),url("${moonImage}")` }}
       >
-        <Logo />
-        <div>
+        <div className="auth-visual-top">
+          <Logo />
+        </div>
+        <div className="auth-visual-body">
           <span className="eyebrow">Plan beyond the horizon</span>
           <h1>Mission clarity begins with context.</h1>
           <p>Explore, compare and communicate the conditions that shape lunar surface operations.</p>
         </div>
-        <small>Independent concept · Not an official NASA product</small>
+        <div className="auth-visual-foot">
+          <small>Independent concept · Not an official NASA product</small>
+        </div>
       </div>
 
       <div className="auth-form">
