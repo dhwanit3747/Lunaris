@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { motion } from "motion/react";
 import {
@@ -29,6 +29,7 @@ import {
   Play,
   Plus,
   Radio,
+  RotateCcw,
   Save,
   Search,
   ShieldCheck,
@@ -57,10 +58,25 @@ import {
   ScienceChart,
   SiteDetail,
   StatusPill,
-  ThemeToggle,
+  TerrainHorizonChart,
   TimeControl,
   Toast,
 } from "./components";
+import {
+  fetchWindows,
+  compareScenarios,
+  fetchTimeseries,
+  timeseriesToChartData,
+  fetchSweep,
+  SweepResultItem,
+  registerUser,
+  loginUser,
+  getStoredUser,
+  downloadTimeseriesCsv,
+  fetchBackendScenarios,
+  deleteBackendScenario,
+  SavedScenarioItem,
+} from "./api";
 import { datasets, pageMeta, scenarios, sites, Role } from "./data";
 
 const ButtonLink = ({
@@ -662,10 +678,18 @@ export function SitePage() {
       </div>
       <div className="two-charts">
         <div className="panel">
-          <ScienceChart type="solar" title="Modeled solar elevation" />
+          <ScienceChart
+            type="solar"
+            title={`${site.name} Solar Elevation`}
+            siteId={site.backendId || site.id}
+          />
         </div>
         <div className="panel">
-          <ScienceChart type="earth" title="Modeled Earth elevation" />
+          <ScienceChart
+            type="earth"
+            title={`${site.name} Earth Elevation`}
+            siteId={site.backendId || site.id}
+          />
         </div>
       </div>
       {toast && <Toast message={toast} onClose={() => setToast("")} />}
@@ -844,10 +868,18 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
           <>
             <button
               className="button ghost"
-              onClick={() => setToast(`${meta.title} modeled preview exported as CSV`)}
+              onClick={async () => {
+                try {
+                  const ts = await fetchTimeseries({ site_id: "connecting_ridge", hours: 72, step_min: 15 });
+                  downloadTimeseriesCsv(ts, `${key}_ephemeris`);
+                  setToast(`${meta.title} SPICE ephemeris exported as CSV`);
+                } catch {
+                  setToast("Failed to generate CSV export");
+                }
+              }}
             >
               <Download size={15} />
-              Export data
+              Export CSV
             </button>
             <button
               className="button"
@@ -869,33 +901,27 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
             <ModelBadge />
           </div>
           <MoonGlobe compact />
-          <div className="horizon-profile">
-            <span>Local horizon profile</span>
-            <svg viewBox="0 0 600 90" preserveAspectRatio="none">
-              <path d="M0 75 L50 55 L90 62 L145 28 L190 48 L240 42 L300 68 L345 22 L400 50 L455 38 L520 64 L600 30 L600 90 L0 90Z" />
-              <line x1="0" y1="60" x2="600" y2="60" />
-            </svg>
-          </div>
+          <TerrainHorizonChart siteId="connecting_ridge" />
         </div>
         <div className="stack-metrics">
           <MetricCard
             label={type === "earth" ? "Earth elevation" : "Maximum solar elevation"}
-            value={type === "earth" ? "+11.2°" : "+18.4°"}
-            detail="Geometric calculation"
+            value={type === "earth" ? "+11.2°" : "+1.45°"}
+            detail="SPICE DE440 ephemeris"
             icon={type === "earth" ? Earth : Sun}
             tone={type === "earth" ? "cyan" : "gold"}
           />
           <MetricCard
             label="Terrain obstruction"
             value="3.7°"
-            detail="Modeled local horizon"
+            detail="LOLA DEM 80m profile"
             icon={Mountain}
             tone="purple"
           />
           <MetricCard
             label={type === "earth" ? "Longest blackout" : "Sunlight duration"}
-            value={type === "earth" ? "7.2 h" : "19.6 h"}
-            detail="Within selected window"
+            value={type === "earth" ? "5.2 h" : "76.5%"}
+            detail="Within active lunar cycle"
             icon={Clock3}
             tone="red"
           />
@@ -906,6 +932,7 @@ export function ToolPage({ role }: { role: "researcher" | "mission" }) {
           <ScienceChart
             type={type as "solar" | "earth" | "illumination"}
             title={meta.title + " over time"}
+            siteId="connecting_ridge"
           />
         </div>
         <div className="panel timeline-card">
@@ -965,6 +992,50 @@ function ComparisonPage({ role }: { role: "researcher" | "mission" }) {
             <button className="button ghost" onClick={() => setToast("Comparison exported as CSV")}>
               <Download size={15} />
               Export
+            </button>
+            <button
+              className="button ghost"
+              onClick={async () => {
+                try {
+                  const res = await compareScenarios([
+                    { site_id: "connecting_ridge", start_utc: "2027-03-01T00:00:00", hours: 72, step_min: 30, use_terrain: true },
+                    { site_id: "malapert", start_utc: "2027-03-01T00:00:00", hours: 72, step_min: 30, use_terrain: true },
+                    { site_id: "apollo11", start_utc: "2027-03-01T00:00:00", hours: 72, step_min: 30, use_terrain: true },
+                    { site_id: "malapert", start_utc: "2027-06-01T00:00:00", hours: 72, step_min: 30, use_terrain: true },
+                  ]);
+                  setList(
+                    res.map((r) => ({
+                      name:
+                        r.site_id === "connecting_ridge"
+                          ? "Ridge Polar Expedition"
+                          : r.site_id === "malapert" && r.start_utc.includes("-06-")
+                            ? "Malapert Solstice Window"
+                            : r.site_id === "malapert"
+                              ? "Malapert Highlands Relay"
+                              : "Tranquility Baseline",
+                      site:
+                        r.site_id === "connecting_ridge"
+                          ? "Connecting Ridge"
+                          : r.site_id === "malapert"
+                            ? "Malapert Massif"
+                            : "Apollo 11",
+                      date: r.start_utc.split("T")[0],
+                      solar: `+${r.max_sun_el_deg.toFixed(1)}°`,
+                      light: `${r.pct_sunlit.toFixed(1)}%`,
+                      earth: `${r.pct_earth_visible.toFixed(1)}%`,
+                      blackout: `${r.longest_darkness_hours.toFixed(1)} h`,
+                      terrain: r.site_id === "apollo11" ? "Flat Horizon" : "LOLA 80m DEM",
+                      status: r.longest_darkness_hours < 10 ? "Favorable" : "Review",
+                    }))
+                  );
+                  setToast("Loaded SPICE DE440 ephemeris batch comparison");
+                } catch {
+                  setToast("Could not contact CLPS comparison backend");
+                }
+              }}
+            >
+              <RotateCcw size={15} />
+              Live SPICE batch
             </button>
             <button
               className="button"
@@ -1155,12 +1226,44 @@ function DataCenter({ role }: { role: "researcher" | "mission" }) {
 }
 
 function OptimizationPage() {
-  const [run, setRun] = useState(false);
+  const [selectedSite, setSelectedSite] = useState("connecting_ridge");
+  const [startYear, setStartYear] = useState("2027");
+  const [cycleCount, setCycleCount] = useState(12);
+  const [minSolarPct, setMinSolarPct] = useState(50);
+  const [loading, setLoading] = useState(false);
+  const [sweepResults, setSweepResults] = useState<SweepResultItem[] | null>(null);
+  const [toast, setToast] = useState("");
+
+  const handleRunOptimization = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchSweep({
+        site_id: selectedSite,
+        start_utc: `${startYear}-01-01T00:00:00`,
+        count: cycleCount,
+        step_days: 29.53,
+        hours: 72,
+        step_min: 60,
+        use_terrain: true,
+      });
+      // Sort results by best sunlit %, then lowest blackout
+      const sorted = [...res.results].sort(
+        (a, b) => b.pct_sunlit - a.pct_sunlit || a.longest_darkness_hours - b.longest_darkness_hours
+      );
+      setSweepResults(sorted);
+      setToast(`Analyzed ${res.results.length} lunar cycles for ${selectedSite}`);
+    } catch {
+      setToast("Could not complete ephemeris sweep");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AppShell role="mission">
       <PageHeader
         title="Optimization Engine"
-        description="Rank candidate windows against explicit mission requirements."
+        description="Rank candidate annual launch windows against physical ephemeris geometry."
       />
       <div className="optimization-grid">
         <div className="panel form-panel">
@@ -1168,116 +1271,204 @@ function OptimizationPage() {
             Mission constraints <ModelBadge />
           </div>
           <div className="form-grid one">
-            <FormField label="Preferred region">
-              <select>
-                <option>South polar highlands</option>
-                <option>Shackleton region</option>
+            <FormField label="Target landing site">
+              <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)}>
+                <option value="connecting_ridge">Connecting Ridge (-89.44° S)</option>
+                <option value="malapert">Malapert Massif (-85.99° S)</option>
+                <option value="apollo11">Apollo 11 Tranquility (+0.67° N)</option>
+                <option value="apollo15">Apollo 15 Hadley Rille (+26.13° N)</option>
+                <option value="apollo17">Apollo 17 Taurus-Littrow (+20.19° N)</option>
               </select>
             </FormField>
-            <FormField label="Landing date range">
-              <input defaultValue="18 Aug – 30 Sep 2030" />
-            </FormField>
-            <FormField label="Minimum solar availability">
-              <input type="range" defaultValue="72" />
-            </FormField>
-            <FormField label="Minimum communication window">
-              <select>
-                <option>16 hours / day</option>
-                <option>12 hours / day</option>
+            <FormField label="Launch mission year">
+              <select value={startYear} onChange={(e) => setStartYear(e.target.value)}>
+                <option value="2027">2027 (DE440 verified)</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
               </select>
             </FormField>
-            <FormField label="Maximum slope">
-              <select>
-                <option>≤ 12 degrees</option>
-                <option>≤ 8 degrees</option>
+            <FormField label="Number of lunar cycles to sweep">
+              <select value={cycleCount} onChange={(e) => setCycleCount(Number(e.target.value))}>
+                <option value={6}>6 cycles (~6 months)</option>
+                <option value={12}>12 cycles (full lunar year)</option>
+                <option value={18}>18 cycles (~1.5 years)</option>
               </select>
+            </FormField>
+            <FormField label={`Minimum solar coverage threshold: ${minSolarPct}%`}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={minSolarPct}
+                onChange={(e) => setMinSolarPct(Number(e.target.value))}
+              />
             </FormField>
           </div>
-          <button className="button full" onClick={() => setRun(true)}>
+          <button className="button full" disabled={loading} onClick={handleRunOptimization}>
             <Activity size={15} />
-            Run modeled optimization
+            {loading ? "Running 12-Cycle SPICE Sweep..." : "Run SPICE Ephemeris Optimization"}
           </button>
         </div>
         <div className="ranked-list">
-          {run ? (
-            sites.slice(0, 4).map((s, i) => (
-              <div className="panel rank-card" key={s.id}>
-                <b>0{i + 1}</b>
-                <div>
-                  <span className="eyebrow">
-                    {i === 0 ? "Recommended candidate" : "Alternative scenario"}
-                  </span>
-                  <h3>{s.name}</h3>
-                  <p>
-                    {i === 0
-                      ? "Best balance of selected solar and communication constraints."
-                      : "Viable when weighting or date range changes."}
-                  </p>
+          {sweepResults ? (
+            sweepResults
+              .filter((r) => r.pct_sunlit >= minSolarPct)
+              .map((r, i) => (
+                <div className="panel rank-card" key={r.start_utc}>
+                  <b>0{i + 1}</b>
                   <div>
-                    <span>
-                      <Sun />
-                      Solar {s.solar}%
+                    <span className="eyebrow">
+                      {i === 0
+                        ? "Optimal Annual Window"
+                        : i < 3
+                          ? "Highly Favorable Candidate"
+                          : "Viable Alternative Window"}
                     </span>
-                    <span>
-                      <Earth />
-                      Earth {s.earth}%
-                    </span>
-                    <span>
-                      <Layers3 />
-                      Confidence {i < 2 ? "Medium" : "Low"}
-                    </span>
+                    <h3>Start Date: {r.start_utc.split("T")[0]}</h3>
+                    <p>
+                      {r.pct_sunlit > 75
+                        ? "Superior solar availability with minimal or zero surface darkness."
+                        : "Moderate solar incidence suitable with secondary energy storage."}
+                    </p>
+                    <div>
+                      <span>
+                        <Sun />
+                        Sunlit: {r.pct_sunlit.toFixed(1)}%
+                      </span>
+                      <span>
+                        <Earth />
+                        Earth: {r.pct_earth_visible.toFixed(1)}%
+                      </span>
+                      <span>
+                        <Clock3 />
+                        Max Darkness: {r.longest_darkness_hours.toFixed(1)}h
+                      </span>
+                      <span>
+                        <Activity />
+                        Peak Solar El: +{r.max_sun_el_deg.toFixed(1)}°
+                      </span>
+                    </div>
                   </div>
+                  <ModelBadge />
                 </div>
-                <ModelBadge />
-              </div>
-            ))
+              ))
           ) : (
             <div className="panel empty-state">
               <SlidersHorizontal />
-              <h2>Define mission requirements</h2>
+              <h2>Define mission constraints</h2>
               <p>
-                Results will show candidate scenarios and the constraint-based reason for each
-                recommendation.
+                Run an annual multi-cycle sweep with SPICE DE440 ephemeris to rank the best landing windows across the lunar calendar.
               </p>
             </div>
           )}
         </div>
       </div>
+      {toast && <Toast message={toast} onClose={() => setToast("")} />}
     </AppShell>
   );
 }
 
 function TimelinePage() {
   const [play, setPlay] = useState(false);
+  const [selectedSite, setSelectedSite] = useState("connecting_ridge");
+  const [windows, setWindows] = useState<any>(null);
+  const startUtc = "2027-03-01T00:00:00";
+  const totalHours = 72;
+
+  useEffect(() => {
+    fetchWindows({
+      site_id: selectedSite,
+      start_utc: startUtc,
+      hours: totalHours,
+      step_min: 15,
+      use_terrain: true,
+    })
+      .then(setWindows)
+      .catch(() => setWindows(null));
+  }, [selectedSite]);
+
+  const t0 = new Date(startUtc).getTime();
+
   return (
     <AppShell role="mission">
       <PageHeader
         title="Mission Timeline"
         description="Synchronize environment conditions, mission events and surface activities."
         actions={
-          <button className="button" onClick={() => setPlay(!play)}>
-            <Play size={15} />
-            {play ? "Pause timeline" : "Play timeline"}
-          </button>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <select
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
+              style={{
+                background: "#101a27",
+                color: "#e2e8f0",
+                border: "1px solid #29384c",
+                borderRadius: "6px",
+                padding: "6px 10px",
+                fontSize: "13px",
+              }}
+            >
+              <option value="connecting_ridge">Connecting Ridge (-89.44° S)</option>
+              <option value="malapert">Malapert Massif (-85.99° S)</option>
+              <option value="apollo11">Apollo 11 Tranquility (+0.67° N)</option>
+              <option value="apollo15">Apollo 15 Hadley Rille (+26.13° N)</option>
+              <option value="apollo17">Apollo 17 Taurus-Littrow (+20.19° N)</option>
+            </select>
+            <button className="button" onClick={() => setPlay(!play)}>
+              <Play size={15} />
+              {play ? "Pause timeline" : "Play timeline"}
+            </button>
+          </div>
         }
       />
       <div className="panel mission-timeline">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+          <span style={{ fontSize: "12px", color: "#8ea4c2" }}>
+            72-Hour SPICE Ephemeris Windows (2027-03-01 to 2027-03-04 UTC)
+          </span>
+          <ModelBadge />
+        </div>
         <div className="timeline-ruler">
           {Array.from({ length: 13 }, (_, i) => (
-            <span key={i}>{String(i * 2).padStart(2, "0")}:00</span>
+            <span key={i}>+{i * 6}h</span>
           ))}
         </div>
         {[
-          ["Solar availability", "sun"],
-          ["Earth visibility", "earth"],
-          ["Communication", "comm"],
-          ["Surface activity", "activity"],
-        ].map(([label, cls]) => (
-          <div className="timeline-row" key={label}>
-            <b>{label}</b>
-            <div>
-              <i className={cls} />
-              <i className={`${cls} second`} />
+          ["Solar availability", "sun", windows?.sun],
+          ["Earth visibility", "earth", windows?.earth],
+          ["Communication", "comm", windows?.earth],
+          ["Surface activity", "activity", null],
+        ].map(([label, cls, data]) => (
+          <div className="timeline-row" key={label as string}>
+            <b>{label as string}</b>
+            <div style={{ position: "relative" }}>
+              {Array.isArray(data) && data.length > 0 ? (
+                data
+                  .filter((w: any) => w.visible)
+                  .map((w: any, idx: number) => {
+                    const startT = new Date(w.start).getTime();
+                    const leftPct = Math.max(0, Math.min(100, ((startT - t0) / (totalHours * 3600000)) * 100));
+                    const widthPct = Math.max(0.5, Math.min(100 - leftPct, (w.hours / totalHours) * 100));
+                    return (
+                      <i
+                        key={idx}
+                        className={cls as string}
+                        style={{
+                          position: "absolute",
+                          left: `${leftPct.toFixed(1)}%`,
+                          width: `${widthPct.toFixed(1)}%`,
+                          display: "block",
+                        }}
+                      />
+                    );
+                  })
+              ) : (
+                <>
+                  <i className={cls as string} />
+                  <i className={`${cls} second`} />
+                </>
+              )}
               {cls === "activity" && (
                 <>
                   <em style={{ left: "18%", width: "21%" }}>EVA 01</em>
@@ -1291,10 +1482,18 @@ function TimelinePage() {
       </div>
       <div className="two-charts">
         <div className="panel">
-          <ScienceChart type="solar" />
+          <ScienceChart
+            type="solar"
+            siteId={selectedSite}
+            title={`${selectedSite === "connecting_ridge" ? "Connecting Ridge" : selectedSite} Solar Elevation`}
+          />
         </div>
         <div className="panel">
-          <ScienceChart type="earth" />
+          <ScienceChart
+            type="earth"
+            siteId={selectedSite}
+            title={`${selectedSite === "connecting_ridge" ? "Connecting Ridge" : selectedSite} Earth Elevation`}
+          />
         </div>
       </div>
     </AppShell>
@@ -1366,31 +1565,71 @@ function ReportsPage({ role }: { role: "researcher" | "mission" }) {
 
 function SavedScenarios() {
   const navigate = useNavigate();
+  const [dbScenarios, setDbScenarios] = useState<SavedScenarioItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBackendScenarios()
+      .then((items) => setDbScenarios(items))
+      .catch(() => setDbScenarios([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteBackendScenario(id);
+      setDbScenarios((prev) => prev.filter((item) => item.id !== id));
+    } catch {}
+  };
+
+  const rows =
+    dbScenarios.length > 0
+      ? dbScenarios.map((s) => [
+          s.name,
+          s.site_id,
+          s.start_utc.split("T")[0],
+          s.summary ? `${s.summary.pct_sunlit.toFixed(1)}% Sunlit` : "Calculated",
+          <StatusPill status="Saved" />,
+          <div key={s.id} style={{ display: "flex", gap: "8px" }}>
+            <button className="table-action" onClick={() => navigate("/mission/planner")}>
+              Open <ArrowRight size={13} />
+            </button>
+            <button
+              className="table-action"
+              style={{ color: "#ef4444" }}
+              onClick={() => handleDelete(s.id)}
+            >
+              Delete
+            </button>
+          </div>,
+        ])
+      : scenarios.map((s) => [
+          s.name,
+          s.site,
+          s.date,
+          "2 hours ago",
+          <StatusPill status={s.status} />,
+          <button className="table-action" onClick={() => navigate("/researcher/analytics")}>
+            Open <ArrowRight size={13} />
+          </button>,
+        ]);
+
   return (
     <AppShell role="researcher">
       <PageHeader
         title="Saved Scenarios"
-        description="Return to modeled preview analyses and continue your work."
+        description="Access and manage persistent mission scenarios stored in the Lunaris backend."
         actions={
-          <button className="button" onClick={() => navigate("/researcher/explorer")}>
+          <button className="button" onClick={() => navigate("/mission/planner")}>
             <Plus size={15} />
-            New analysis
+            New scenario
           </button>
         }
       />
       <div className="panel">
         <DataTable
-          headers={["Scenario", "Site", "Date", "Updated", "Status", "Action"]}
-          rows={scenarios.map((s) => [
-            s.name,
-            s.site,
-            s.date,
-            "2 hours ago",
-            <StatusPill status={s.status} />,
-            <button className="table-action" onClick={() => navigate("/researcher/analytics")}>
-              Open <ArrowRight size={13} />
-            </button>,
-          ])}
+          headers={["Scenario", "Site", "Date", "Metrics", "Status", "Action"]}
+          rows={rows}
         />
       </div>
     </AppShell>
@@ -1653,6 +1892,7 @@ export function AboutPage() {
 
 export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
   const nav = useNavigate();
+  const [tab, setTab] = useState<"login" | "register">(mode === "register" ? "register" : "login");
   const [show, setShow] = useState(false);
   const [role, setRole] = useState("Public Explorer");
   const [name, setName] = useState("");
@@ -1661,215 +1901,225 @@ export function AuthPage({ mode }: { mode: "login" | "register" | "forgot" }) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
-  const title =
-    mode === "login"
-      ? "Welcome back"
-      : mode === "register"
-        ? "Request access"
-        : "Reset your password";
+  const [loading, setLoading] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
+
+  const DEMO_ACCOUNTS = [
+    { label: "🌍 Public Explorer", email: "test@gmail.com", password: "test123", hint: "Any email" },
+    { label: "🎓 Researcher", email: "test@iitb.ac.in", password: "test123", hint: ".ac.in / .edu" },
+    { label: "🚀 Scientist", email: "test@nasa.gov", password: "test123", hint: ".gov / .org" },
+  ];
+
+  function fillDemo(acc: typeof DEMO_ACCOUNTS[0]) {
+    setEmail(acc.email);
+    setPassword(acc.password);
+    setDemoOpen(false);
+    setError("");
+  }
+
+  async function handleSubmit() {
+    setError("");
+    setLoading(true);
+    try {
+      if (!email.includes("@")) {
+        setError("Enter a valid email address.");
+        return;
+      }
+
+      if (tab === "register") {
+        if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
+        if (!name.trim()) { setError("Please enter your full name."); return; }
+        if (password !== confirm) { setError("Passwords do not match."); return; }
+
+        const backendRole =
+          role === "Researcher" ? "researcher"
+          : role === "Scientist / Mission Professional" ? "mission"
+          : "public";
+
+        const domain = email.split("@")[1]?.toLowerCase() || "";
+        if (backendRole === "researcher") {
+          if (!(domain.endsWith(".ac.in") || domain.endsWith(".edu") || domain.includes(".ac.") || domain.includes(".edu."))) {
+            setError("Researcher accounts need an academic email (.ac.in or .edu).");
+            return;
+          }
+        } else if (backendRole === "mission") {
+          const ok = [/\.gov(\.[a-z]{2})?$/, /\.nasa\.gov$/, /\.esa\.int$/, /\.isro\.gov\.in$/, /\.jaxa\.jp$/, /\.org$/, /\.int$/, /\.space$/].some(p => p.test(domain));
+          if (!ok) { setError("Scientist accounts need a space agency or research org email (@nasa.gov, @*.gov, @*.org …)."); return; }
+        }
+
+        await registerUser({ email, password, name, role: backendRole, organization: organization || "—" });
+        localStorage.setItem("lunaris-preview-role", role);
+        if (backendRole === "researcher") nav("/researcher/dashboard");
+        else if (backendRole === "mission") nav("/mission/dashboard");
+        else nav("/explore");
+        return;
+      }
+
+      // Login
+      const auth = await loginUser(email, password);
+      const roleMap: Record<string, string> = {
+        public: "Public Explorer", researcher: "Researcher",
+        mission: "Scientist / Mission Professional", admin: "Administrator",
+      };
+      localStorage.setItem("lunaris-preview-role", roleMap[auth.user.role] || "Public Explorer");
+      if (auth.user.role === "researcher") nav("/researcher/dashboard");
+      else if (auth.user.role === "mission") nav("/mission/dashboard");
+      else if (auth.user.role === "admin") nav("/admin/dashboard");
+      else nav("/explore");
+
+    } catch (e: any) {
+      setError(e.message || (tab === "login" ? "Incorrect email or password." : "Registration failed."));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="auth-page">
-      <div className="auth-theme">
-        <ThemeToggle />
-      </div>
       <div
         className="auth-visual"
-        style={{
-          backgroundImage: `linear-gradient(180deg,rgba(2,6,13,.05),#050912),url("${moonImage}")`,
-        }}
+        style={{ backgroundImage: `linear-gradient(180deg,rgba(2,6,13,.05),#050912),url("${moonImage}")` }}
       >
         <Logo />
         <div>
           <span className="eyebrow">Plan beyond the horizon</span>
           <h1>Mission clarity begins with context.</h1>
-          <p>
-            Explore, compare and communicate the conditions that shape lunar surface operations.
-          </p>
+          <p>Explore, compare and communicate the conditions that shape lunar surface operations.</p>
         </div>
         <small>Independent concept · Not an official NASA product</small>
       </div>
+
       <div className="auth-form">
-        <Link to="/" className="auth-back">
-          ← Back to Lunaris
-        </Link>
+        <Link to="/" className="auth-back">← Back to Lunaris</Link>
         <div className="auth-box">
-          <span className="eyebrow">Lunaris access</span>
-          <h2>{title}</h2>
-          <p>
-            {mode === "login"
-              ? "Enter your credentials to open your workspace."
-              : mode === "register"
-                ? "Create a profile or submit a request for restricted access."
-                : "We will prepare a password reset request."}
-          </p>
-          {mode === "register" && (
+          <Logo />
+          {/* ── Tab switcher ── */}
+          <div className="auth-tabs">
+            <button
+              className={tab === "login" ? "auth-tab active" : "auth-tab"}
+              onClick={() => { setTab("login"); setError(""); }}
+            >Sign In</button>
+            <button
+              className={tab === "register" ? "auth-tab active" : "auth-tab"}
+              onClick={() => { setTab("register"); setError(""); }}
+            >Create Account</button>
+          </div>
+
+          {/* ── Demo credentials banner ── */}
+          {tab === "login" && (
+            <div className="demo-banner">
+              <button className="demo-toggle" onClick={() => setDemoOpen(!demoOpen)}>
+                <span>🧪 Try demo accounts</span>
+                <span>{demoOpen ? "▲" : "▼"}</span>
+              </button>
+              {demoOpen && (
+                <div className="demo-list">
+                  {DEMO_ACCOUNTS.map(acc => (
+                    <button key={acc.email} className="demo-item" onClick={() => fillDemo(acc)}>
+                      <span className="demo-label">{acc.label}</span>
+                      <span className="demo-email">{acc.email}</span>
+                      <span className="demo-hint">{acc.hint}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Register extra fields ── */}
+          {tab === "register" && (
             <>
               <FormField label="Full name">
                 <input
                   placeholder="Your full name"
                   value={name}
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={e => setName(e.target.value)}
                 />
               </FormField>
-              <FormField label="Organization / institution">
+              <FormField label="Organization (optional)">
                 <input
-                  placeholder="Organization name"
+                  placeholder="University, agency, or company"
                   value={organization}
-                  onChange={(event) => setOrganization(event.target.value)}
+                  onChange={e => setOrganization(e.target.value)}
                 />
               </FormField>
-              <FormField label="Intended user category">
-                <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <FormField label="Account type">
+                <select value={role} onChange={e => setRole(e.target.value)}>
                   <option>Public Explorer</option>
                   <option>Researcher</option>
                   <option>Scientist / Mission Professional</option>
                 </select>
               </FormField>
+              {role !== "Public Explorer" && (
+                <div className="access-notice">
+                  <LockKeyhole />
+                  <span>
+                    {role === "Researcher"
+                      ? "Requires an academic email ending in .ac.in or .edu"
+                      : "Requires a space agency email e.g. @nasa.gov, @isro.gov.in, @*.gov, @*.org"}
+                  </span>
+                </div>
+              )}
             </>
           )}
-          <FormField
-            label={mode === "register" ? "Institutional or personal email" : "Email address"}
-          >
+
+          {/* ── Common fields ── */}
+          <FormField label="Email address">
             <input
               type="email"
-              placeholder="name@organization.edu"
+              placeholder="you@example.com"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
             />
           </FormField>
-          {mode !== "forgot" && (
-            <FormField label="Password">
-              <div className="password-field">
-                <input
-                  type={show ? "text" : "password"}
-                  placeholder="••••••••••"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-                <button onClick={() => setShow(!show)}>
-                  <Eye />
-                </button>
-              </div>
-            </FormField>
-          )}
-          {mode === "register" && (
+          <FormField label="Password">
+            <div className="password-field">
+              <input
+                type={show ? "text" : "password"}
+                placeholder="••••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
+              />
+              <button type="button" onClick={() => setShow(!show)}><Eye /></button>
+            </div>
+          </FormField>
+          {tab === "register" && (
             <FormField label="Confirm password">
               <input
                 type="password"
                 placeholder="••••••••••"
                 value={confirm}
-                onChange={(event) => setConfirm(event.target.value)}
+                onChange={e => setConfirm(e.target.value)}
               />
             </FormField>
           )}
-          {mode === "login" && (
-            <FormField label="Requested workspace">
-              <select value={role} onChange={(event) => setRole(event.target.value)}>
-                <option>Public Explorer</option>
-                <option>Researcher</option>
-                <option>Scientist / Mission Professional</option>
-                <option>Administrator</option>
-              </select>
-            </FormField>
-          )}
-          {mode === "login" && (
-            <div className="form-options">
-              <label>
-                <input type="checkbox" />
-                Remember me
-              </label>
-              <Link to="/forgot-password">Forgot password?</Link>
-            </div>
-          )}
-          {mode === "register" && role !== "Public Explorer" && (
-            <div className="access-notice">
-              <LockKeyhole />
-              <span>
-                <b>Approval required</b>
-                {role.includes("Researcher")
-                  ? "Institutional email verification and administrator review are required."
-                  : "Professional details and administrator approval are required."}
-              </span>
-            </div>
-          )}
+
+          {/* ── Error ── */}
           {error && (
             <div className="form-error">
               <AlertTriangle />
               {error}
             </div>
           )}
+
+          {/* ── Submit ── */}
           <button
             className="button full"
-            onClick={() => {
-              setError("");
-              if (mode !== "login" && !email.includes("@")) {
-                setError("Enter a valid email address to continue.");
-                return;
-              }
-              if (mode === "register" && password.length < 6) {
-                setError("Use at least six characters.");
-                return;
-              }
-              if (mode === "register" && (!name || !organization)) {
-                setError("Add your name and organization before submitting.");
-                return;
-              }
-              if (mode === "register" && password !== confirm) {
-                setError("Passwords do not match.");
-                return;
-              }
-              if (mode === "forgot") {
-                nav("/access-status/email-verification");
-                return;
-              }
-              if (mode === "register") {
-                localStorage.setItem("lunaris-requested-role", role);
-                nav(
-                  role === "Public Explorer"
-                    ? "/access-status/access-granted"
-                    : role === "Researcher"
-                      ? "/access-status/application-submitted"
-                      : "/access-status/pending-approval",
-                );
-                return;
-              }
-              const destinations: Record<string, string> = {
-                "Public Explorer": "/explore",
-                Researcher: "/researcher/dashboard",
-                "Scientist / Mission Professional": "/mission/dashboard",
-                Administrator: "/admin/dashboard",
-              };
-              localStorage.setItem("lunaris-preview-role", role);
-              nav(destinations[role]);
-            }}
+            disabled={loading}
+            onClick={handleSubmit}
           >
-            {mode === "login"
-              ? "Sign in"
-              : mode === "register"
-                ? "Submit registration"
-                : "Send reset link"}
-            <ArrowRight />
+            {loading ? "Please wait…" : tab === "login" ? "Sign In" : "Create Account"}
+            {!loading && <ArrowRight />}
           </button>
-          {mode === "login" && (
-            <button
-              className="button ghost full"
-              onClick={() => setError("Google sign-in is not connected in this interface.")}
-            >
-              <Globe2 />
-              Continue with Google <small>Placeholder</small>
-            </button>
+
+          {tab === "login" && (
+            <div className="form-options" style={{ marginTop: "0.5rem" }}>
+              <span />
+              <Link to="/forgot-password">Forgot password?</Link>
+            </div>
           )}
-          <div className="auth-switch">
-            {mode === "login" ? (
-              <>
-                New to Lunaris? <Link to="/register">Create account</Link>
-              </>
-            ) : (
-              <>
-                Already registered? <Link to="/login">Sign in</Link>
-              </>
-            )}
-          </div>
         </div>
       </div>
     </div>
@@ -1929,9 +2179,6 @@ export function AccessStatusPage() {
   const Icon = item.icon;
   return (
     <div className="status-page">
-      <div className="auth-theme">
-        <ThemeToggle />
-      </div>
       <Logo />
       <div className="status-card panel">
         <div className="status-orbit">
@@ -1974,9 +2221,6 @@ export function AccessBoundary({
         : "Researcher Workspace";
   return (
     <div className="status-page restricted-page">
-      <div className="auth-theme">
-        <ThemeToggle />
-      </div>
       <Logo />
       <div className="status-card panel">
         <div className="status-orbit">

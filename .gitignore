@@ -1,21 +1,27 @@
+# Node / frontend
 node_modules/
 dist/
-build/
-.cache/
-.env*
-.vite/
-vite.config.*.timestamp-*
-*.tsbuildinfo
-*-debug.log*
-logs/
-*.log
-.claude-replay.*
-.tmp-*
-/.figma/design-context/
+.env.local
+.env.*.local
 
-# Platform-managed agentplat state, not project source. In the
-# client-initiated single-repo workspace layout (make's `Path: "."` spec) the
-# repo root IS the workspace root, so these land inside this repo rather than
-# beside it.
-/.plugins/
-/.opencode-skills/
+# Python / backend
+CLPS/.venv/
+CLPS/__pycache__/
+CLPS/**/__pycache__/
+CLPS/*.pyc
+CLPS/**/*.pyc
+
+# Large data files — commit kernels via Git LFS or download at deploy time
+CLPS/dem/*.TIF
+CLPS/dem/*.tif
+
+# Database (keep out of repo; use env var LUNARIS_DB_PATH in production)
+CLPS/lunaris.db
+
+# CSS backup created by strip script
+src/index.css.bak
+
+# Vite / build artifacts
+*.local
+.DS_Store
+Thumbs.db

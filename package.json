@@ -5,17 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "backend": "CLPS\\.venv\\Scripts\\python.exe -m uvicorn main:app --app-dir CLPS --host 127.0.0.1 --port 8000 --reload",
     "build": "vite build",
     "preview": "vite preview",
     "format": "oxfmt"
   },
   "dependencies": {
+    "@types/three": "^0.187.0",
     "lucide-react": "^1.69.0",
     "motion": "^14.9.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^8.5.1",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
