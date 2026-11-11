@@ -374,9 +374,64 @@ threading.Thread(target=_warm, daemon=True).start()
 DIST_DIR = pathlib.Path(__file__).parent.parent / "dist"
 if not DIST_DIR.exists():
     DIST_DIR = pathlib.Path("/app/dist")
+if not DIST_DIR.exists():
+    DIST_DIR = pathlib.Path(__file__).parent / "dist"
 
 if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
     app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
+
+    # API aliases: allow requests to both /auth/... and /api/auth/..., /sites and /api/sites, etc.
+    @app.post("/api/auth/register")
+    def api_register(req: RegisterRequest):
+        return register(req)
+
+    @app.post("/api/auth/login")
+    def api_login(req: LoginRequest):
+        return login(req)
+
+    @app.get("/api/auth/me")
+    def api_get_me(user: dict = Depends(get_current_user)):
+        return get_me(user)
+
+    @app.get("/api/sites")
+    def api_get_sites():
+        return get_sites()
+
+    @app.post("/api/timeseries")
+    def api_post_timeseries(q: Query):
+        return post_timeseries(q)
+
+    @app.post("/api/windows")
+    def api_post_windows(q: Query):
+        return post_windows(q)
+
+    @app.get("/api/horizon")
+    def api_get_horizon_query(lat: float, lon: float):
+        return get_horizon_query(lat, lon)
+
+    @app.get("/api/horizon/{site_id}")
+    def api_get_horizon(site_id: str):
+        return get_horizon(site_id)
+
+    @app.post("/api/compare")
+    def api_post_compare(scenarios: List[Query]):
+        return post_compare(scenarios)
+
+    @app.post("/api/sweep")
+    def api_post_sweep(p: SweepPayload):
+        return post_sweep(p)
+
+    @app.post("/api/scenarios")
+    def api_save_scenario(sc: ScenarioCreate, user: dict = Depends(get_current_user)):
+        return save_scenario(sc, user)
+
+    @app.get("/api/scenarios")
+    def api_list_scenarios(user: dict = Depends(get_current_user)):
+        return list_scenarios(user)
+
+    @app.delete("/api/scenarios/{scenario_id}")
+    def api_delete_scenario(scenario_id: int, user: dict = Depends(get_current_user)):
+        return delete_scenario(scenario_id, user)
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -384,4 +439,5 @@ if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
         if full_path and file_path.is_file():
             return FileResponse(file_path)
         return FileResponse(DIST_DIR / "index.html")
+
 

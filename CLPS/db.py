@@ -56,6 +56,24 @@ def init_db():
         """)
         conn.commit()
 
+        # Seed default demonstration accounts if not already present
+        now_iso = datetime.now(timezone.utc).isoformat()
+        demo_seeds = [
+            ("test@gmail.com", "test123", "Demo Explorer", "public", "Public Access"),
+            ("test@iitb.ac.in", "test123", "Demo Researcher", "researcher", "IIT Bombay"),
+            ("test@nasa.gov", "test123", "Demo Scientist", "mission", "NASA Artemis Team"),
+        ]
+        for demo_email, demo_pw, demo_name, demo_role, demo_org in demo_seeds:
+            existing = conn.execute("SELECT id FROM users WHERE email = ?", (demo_email,)).fetchone()
+            if not existing:
+                h, s = hash_password(demo_pw)
+                conn.execute(
+                    """INSERT INTO users (email, name, hashed_password, salt, role, organization, created_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (demo_email, demo_name, h, s, demo_role, demo_org, now_iso)
+                )
+        conn.commit()
+
 init_db()
 
 def hash_password(password: str, salt: Optional[str] = None) -> tuple[str, str]:
